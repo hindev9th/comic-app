@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context=".activities.DetailActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardViewImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="10dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/imageProduct"
+                    android:layout_width="100dp"
+                    android:layout_height="150dp"
+                    android:transitionName="transition_image"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_launcher_background" />
+
+                <FrameLayout
+                    android:id="@+id/progressBarImage"
+                    android:layout_width="100dp"
+                    android:layout_height="150dp"
+                    android:background="@color/white">
+
+                    <ProgressBar
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:indeterminateTint="@color/primary" />
+
+                </FrameLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/textName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:maxLines="2"
+                android:paddingStart="10dp"
+                android:text="Tồn Tại Như Nàng Công Chúa Dã Chủng"
+                android:textColor="@color/head_color"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/cardViewImage"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textTitleNameAuthor"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingStart="10dp"
+                android:text="@string/tac_gia"
+                android:textSize="12sp"
+                app:layout_constraintStart_toEndOf="@id/cardViewImage"
+                app:layout_constraintTop_toBottomOf="@+id/textName" />
+
+            <TextView
+                android:id="@+id/textNameAuthor"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:paddingStart="5dp"
+                android:textColor="@color/secondary_text"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/textTitleNameAuthor"
+                app:layout_constraintTop_toBottomOf="@+id/textName" />
+
+            <TextView
+                android:id="@+id/textTitleStatus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingStart="10dp"
+                android:text="@string/tinh_trang"
+                android:textSize="12sp"
+                app:layout_constraintStart_toEndOf="@id/cardViewImage"
+                app:layout_constraintTop_toBottomOf="@+id/textTitleNameAuthor" />
+
+            <TextView
+                android:id="@+id/textStatus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:paddingStart="5dp"
+                android:textColor="@color/secondary_text"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/textTitleStatus"
+                app:layout_constraintTop_toBottomOf="@+id/textNameAuthor" />
+
+            <TextView
+                android:id="@+id/textTitleView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingStart="10dp"
+                android:text="@string/luot_xem"
+                android:textSize="12sp"
+                app:layout_constraintStart_toEndOf="@id/cardViewImage"
+                app:layout_constraintTop_toBottomOf="@+id/textTitleStatus" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:paddingStart="5dp"
+                android:textColor="@color/secondary_text"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/textTitleStatus"
+                app:layout_constraintTop_toBottomOf="@+id/textStatus" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerCategories"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="5dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toEndOf="@id/cardViewImage"
+                app:layout_constraintTop_toBottomOf="@id/textTitleView"
+                app:spanCount="5"
+                tools:listitem="@layout/item_container_category" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/textRead"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/background_read"
+                android:padding="5dp"
+                android:text="@string/doc_truyen"
+                android:textColor="@color/white_text"
+                android:textSize="18sp"
+                app:drawableStartCompat="@drawable/ic_play"
+                app:drawableTint="@color/white_text"
+                app:layout_constraintEnd_toStartOf="@+id/textFavorite"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textFavorite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:background="@drawable/background_chapter"
+                android:padding="5dp"
+                android:text="@string/them_yeu_thich"
+                android:textColor="@color/white_text"
+                android:textSize="18sp"
+                app:drawableStartCompat="@drawable/ic_favorite"
+                app:drawableTint="@color/white_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/textRead"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textTitleDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="@string/mo_ta"
+                android:textColor="@color/head_color"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textRead" />
+
+            <TextView
+                android:id="@+id/textContentDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:maxLines="5"
+                android:textColor="@color/secondary_text"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textTitleDescription" />
+
+            <TextView
+                android:id="@+id/textTitleChapter"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="@string/danh_sach_chuong"
+                android:textColor="@color/head_color"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textContentDescription" />
+
+            <ImageView
+                android:id="@+id/imageFilter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingEnd="10dp"
+                android:src="@drawable/ic_filter"
+                app:layout_constraintBottom_toBottomOf="@id/textTitleChapter"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/textTitleChapter" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerChapters"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:itemCount="20"
+            tools:listitem="@layout/item_container_chapter_number" />
+
+
+    </LinearLayout>
+    <FrameLayout
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:background="@color/background">
+        <ProgressBar
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:indeterminateTint="@color/primary"/>
+    </FrameLayout>
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_gravity="bottom"
+        android:background="@color/white"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp">
+
+            <ImageView
+                android:id="@+id/imageHome"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="0.25"
+                android:src="@drawable/ic_home"
+                app:tint="@color/secondary_text" />
+
+            <ImageView
+                android:id="@+id/imageSearch"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="0.25"
+                android:src="@drawable/ic_search"
+                app:tint="@color/secondary_text" />
+
+            <ImageView
+                android:id="@+id/imageFavorite"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="0.25"
+                android:src="@drawable/ic_favorite"
+                app:tint="@color/secondary_text" />
+
+            <ImageView
+                android:id="@+id/imageSetting"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="0.25"
+                android:src="@drawable/ic_setting"
+                app:tint="@color/secondary_text" />
+        </LinearLayout>
+    </com.google.android.material.bottomappbar.BottomAppBar>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.ComicApp" parent="Theme.MaterialComponents.DayNight.NoActionBar" >
+        <item name="android:textCursorDrawable">@color/primary</item>
+
+        <item name="android:windowActivityTransitions">true</item>
+        <!-- specify shared element transitions -->
+        <item name="android:windowSharedElementEnterTransition">
+            @transition/change_image_transform</item>
+        <item name="android:windowSharedElementExitTransition">
+            @transition/change_image_transform</item>
+    </style>
+
+</resources>

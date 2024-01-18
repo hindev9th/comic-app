@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context=".activities.MainActivity">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerProducts"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="2"
+            tools:listitem="@layout/item_container_product" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/background">
+        <ProgressBar
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:indeterminateTint="@color/primary"/>
+    </FrameLayout>
+
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_gravity="bottom"
+        android:background="@color/white"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp">
+
+            <ImageView
+                android:id="@+id/imageHome"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="0.25"
+                android:src="@drawable/ic_home"
+                app:tint="@color/primary" />
+
+            <ImageView
+                android:id="@+id/imageSearch"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="0.25"
+                android:src="@drawable/ic_search"
+                app:tint="@color/secondary_text" />
+
+            <ImageView
+                android:id="@+id/imageFavorite"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="0.25"
+                android:src="@drawable/ic_favorite"
+                app:tint="@color/secondary_text" />
+
+            <ImageView
+                android:id="@+id/imageSetting"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="0.25"
+                android:src="@drawable/ic_setting"
+                app:tint="@color/secondary_text" />
+        </LinearLayout>
+    </com.google.android.material.bottomappbar.BottomAppBar>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
