@@ -1,6 +1,7 @@
 package com.cm.app.activities
 
 import android.annotation.SuppressLint
+import android.app.ActivityOptions
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.AsyncTask
@@ -103,7 +104,8 @@ class DetailActivity : AppCompatActivity() {
             val intent = Intent(this@DetailActivity,ReadActivity::class.java)
             intent.putExtra("url", this.firstChapter.url)
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            startActivity(intent)
+            val options = ActivityOptions.makeSceneTransitionAnimation(this@DetailActivity, read, "image_transition")
+            startActivity(intent,options.toBundle())
         }
 
         this.chapterAdapter.setOnItemClickListener(object : ChapterAdapter.onItemClickListener{

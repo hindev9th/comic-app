@@ -17,7 +17,7 @@ class ProductService {
             val imageDiv = element.selectFirst("div")
             val image = imageDiv?.selectFirst("img")
             val imageUrl = image?.attr("data-original")
-            return imageUrl ?: "" // Handle potential null values
+            return ("https:$imageUrl") // Handle potential null values
         }
 
         fun getComicName(element: Element): String {

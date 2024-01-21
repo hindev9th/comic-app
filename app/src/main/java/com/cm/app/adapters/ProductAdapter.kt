@@ -95,7 +95,7 @@ class ProductAdapter(private var mList: ArrayList<ProductModel> = ArrayList()) :
             intent.putExtra("url", currentItem.chapUrl1)
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
             val activity = holder.chapNumber1.context as Activity
-            val options = ActivityOptions.makeSceneTransitionAnimation(activity, holder.image, "image_transition")
+            val options = ActivityOptions.makeSceneTransitionAnimation(activity, holder.chapNumber1, "image_transition")
             startActivity(holder.image.context,intent,options.toBundle())
         }
         holder.chapNumber2.setOnClickListener {
@@ -103,7 +103,7 @@ class ProductAdapter(private var mList: ArrayList<ProductModel> = ArrayList()) :
             intent.putExtra("url", currentItem.chapUrl2)
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
             val activity = holder.chapNumber2.context as Activity
-            val options = ActivityOptions.makeSceneTransitionAnimation(activity, holder.image, "image_transition")
+            val options = ActivityOptions.makeSceneTransitionAnimation(activity, holder.chapNumber2, "image_transition")
             startActivity(holder.image.context,intent,options.toBundle())
         }
     }

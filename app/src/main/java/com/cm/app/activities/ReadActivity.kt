@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.View
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.ProgressBar
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -32,6 +34,7 @@ class ReadActivity : AppCompatActivity() {
     private lateinit var progressBar: FrameLayout
     private lateinit var doc : Document
     private lateinit var docOld : Document
+    private lateinit var webView : WebView
     private var isLoading = true
     private var url = ""
     private var currentIndex = 0
@@ -53,8 +56,22 @@ class ReadActivity : AppCompatActivity() {
         this.docOld = Jsoup.parse(intent.getStringExtra("docOld").toString())
         this.currentIndex = intent.getIntExtra("index",0)
 
-        this.setData()
-        this.listenerEvent()
+//        this.setData()
+//        this.listenerEvent()
+
+        this.webView = findViewById<WebView>(R.id.webView)
+
+        webView.settings.javaScriptEnabled = true
+        webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView, url: String) {
+                val css = "#header,.notify_block,.top,.reading-control,.mrt5.mrb5.text-center.col-sm-6,.top.bottom,.footer{display: none;} .reading-detail{width:100%;}" //your css as String
+                val js = "var style = document.createElement('style'); style.innerHTML = '$css'; document.head.appendChild(style);"
+                webView.evaluateJavascript(js,null)
+                progressBar.visibility = View.GONE
+                super.onPageFinished(view, url)
+            }
+        }
+        this.webView.loadUrl(this.url)
     }
 
     private fun listenerEvent(){

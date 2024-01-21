@@ -48,8 +48,6 @@ class ChapterAdapter(private var chapterList: ArrayList<ChapterModel>) :
         holder.time.text = currentChapter.time
     }
 
-
-
     fun toggleFilter(){
         this.chapterList.reverse()
     }

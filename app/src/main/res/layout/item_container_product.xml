@@ -71,6 +71,7 @@
             android:paddingBottom="5dp"
             android:paddingStart="15dp"
             android:paddingEnd="15dp"
+            android:transitionName="image_transition"
             android:text="41"
             android:textColor="@color/black"
             android:textSize="11sp"

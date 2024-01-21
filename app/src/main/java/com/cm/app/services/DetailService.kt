@@ -17,8 +17,8 @@ class DetailService {
 
         fun getDescription(doc: Document): String {
             val view =
-                doc.select("article#item-detail div.detail-content div.about")[0]
-            return view.text() ?: ""
+                doc.select("article#item-detail div.detail-content p")
+            return view.text()
         }
 
         fun getAuthor(doc: Document): String {
