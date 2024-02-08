@@ -1,44 +1,37 @@
 package com.cm.app.activities
 
-import android.annotation.SuppressLint
 import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.util.Log
 import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
-import android.widget.ProgressBar
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import android.widget.ImageView
+import android.widget.TextView
 import com.cm.app.R
-import com.cm.app.adapters.PageAdapter
 import com.cm.app.models.ChapterModel
-import com.cm.app.models.PageModel
-import com.cm.app.services.ChapterService
 import com.cm.app.services.DetailService
 import com.cm.app.utilities.Constants
-import org.jsoup.Jsoup
+import com.google.android.material.bottomappbar.BottomAppBar
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 
 class ReadActivity : AppCompatActivity() {
-    private lateinit var pageAdapter: PageAdapter
-    private lateinit var pageModelList: ArrayList<PageModel>
     private lateinit var chapterModelList: ArrayList<ChapterModel>
-    private lateinit var pageListElements: Elements
     private lateinit var chapterListElements: Elements
-    private lateinit var recyclerImage : RecyclerView
     private lateinit var progressBar: FrameLayout
-    private lateinit var doc : Document
-    private lateinit var docOld : Document
-    private lateinit var webView : WebView
+    private lateinit var doc: Document
+    private lateinit var webView: WebView
     private var isLoading = true
-    private var url = ""
+    private lateinit var urlDetail: String
+    private lateinit var url: String
+    private lateinit var currentName: TextView
+    private lateinit var chapterNext: ChapterModel
+    private lateinit var chapterBack: ChapterModel
     private var currentIndex = 0
-    private var typeAdd = "ASC"
+    private lateinit var back: ImageView
+    private lateinit var next: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,107 +39,101 @@ class ReadActivity : AppCompatActivity() {
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
 
         this.chapterModelList = arrayListOf<ChapterModel>()
-        this.pageModelList = arrayListOf<PageModel>()
-        this.recyclerImage = findViewById(R.id.recyclerImages)
         this.progressBar = findViewById(R.id.progressBar)
+        this.next = findViewById(R.id.imageNext)
+        this.back = findViewById(R.id.imageBack)
+        this.currentName = findViewById(R.id.textCurrentChapterName)
 
-        this.pageAdapter = PageAdapter(this.pageModelList)
-        this.recyclerImage.adapter = this.pageAdapter
         this.url = intent.getStringExtra("url").toString()
-        this.docOld = Jsoup.parse(intent.getStringExtra("docOld").toString())
-        this.currentIndex = intent.getIntExtra("index",0)
-
-//        this.setData()
-//        this.listenerEvent()
+        this.urlDetail = intent.getStringExtra("urlDetail").toString()
+        this.currentIndex = intent.getIntExtra("index", 0)
 
         this.webView = findViewById<WebView>(R.id.webView)
 
-        webView.settings.javaScriptEnabled = true
-        webView.webViewClient = object : WebViewClient() {
+        this.loadPage()
+        this.setData()
+        listerEvent()
+    }
+
+    fun listerEvent() {
+
+
+        next.setOnClickListener {
+            this.url = this.chapterNext.url
+            this.currentName.text = this.chapterNext.name
+            currentIndex -= 1
+
+            this.loadPage()
+        }
+        back.setOnClickListener {
+            this.url = this.chapterBack.url
+            this.currentName.text = this.chapterBack.name
+
+            currentIndex += 1
+            this.loadPage()
+
+        }
+
+        var bottomBar: BottomAppBar = findViewById(R.id.bottomAppBar)
+        webView.setOnScrollChangeListener { v, _, scrollY, _, oldScrollY ->
+            val isScrollingUp = scrollY < oldScrollY
+            val isScrolledToTop = scrollY == 0
+
+            if (isScrollingUp || isScrolledToTop) {
+                // Show the bottom bar
+                bottomBar.visibility = View.VISIBLE
+            } else {
+                // Hide the bottom bar
+                bottomBar.visibility = View.INVISIBLE
+            }
+        }
+    }
+
+    fun loadPage() {
+        this.progressBar.visibility = View.VISIBLE
+        this.webView.settings.javaScriptEnabled = true
+        this.webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView, url: String) {
-                val css = "#header,.notify_block,.top,.reading-control,.mrt5.mrb5.text-center.col-sm-6,.top.bottom,.footer{display: none;} .reading-detail{width:100%;}" //your css as String
-                val js = "var style = document.createElement('style'); style.innerHTML = '$css'; document.head.appendChild(style);"
-                webView.evaluateJavascript(js,null)
+                val css =
+                    "#header,.notify_block,.top,.reading-control,.mrt5.mrb5.text-center.col-sm-6,.top.bottom,.footer{display: none;} .reading-detail{width:100%;}" //your css as String
+                val js =
+                    "var style = document.createElement('style'); style.innerHTML = '$css'; document.head.appendChild(style);"
+                webView.evaluateJavascript(js, null)
                 progressBar.visibility = View.GONE
+
+                if ((currentIndex + 1) < chapterModelList.size) {
+                    back.visibility = View.VISIBLE
+                    chapterBack = chapterModelList[currentIndex + 1]
+                } else {
+                    back.visibility = View.INVISIBLE
+                }
+
+                if ((currentIndex - 1) >= 0) {
+                    next.visibility = View.VISIBLE
+                    chapterNext = chapterModelList[currentIndex - 1]
+                } else {
+                    next.visibility = View.INVISIBLE
+                }
                 super.onPageFinished(view, url)
             }
         }
+
         this.webView.loadUrl(this.url)
     }
 
-    private fun listenerEvent(){
-        this.recyclerImage.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-                    val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
-
-
-                    val totalItemCount = layoutManager.itemCount
-
-                    if (lastVisibleItemPosition == totalItemCount - 1 && !isLoading) {
-                        try {
-                            if (currentIndex > 0 && currentIndex < (chapterModelList.size - 1) ){
-                                currentIndex -= 1
-                                url = chapterModelList[currentIndex].url
-                                typeAdd = "ASC"
-                                setData()
-                            }
-                        }catch (e :Exception){
-
-                        }
-                    } else if (layoutManager.findFirstVisibleItemPosition() == 0 && !isLoading) {
-                        try {
-                            if (currentIndex > 0 && currentIndex < (chapterModelList.size - 1) ){
-                                currentIndex += 1
-                                url = chapterModelList[currentIndex].url
-                                typeAdd = "DESC"
-                                setData()
-                            }
-                        }catch (e :Exception){
-
-                        }
-                    }
-                }
-            }
-
-        })
-    }
-
-    fun setData(){
+    fun setData() {
         isLoading = true
-        val task = TaskGetImages()
-        task.execute(url)
-    }
-    @SuppressLint("NotifyDataSetChanged")
-    private fun getData(){
-        this.pageListElements = ChapterService.getChapterListImage(doc)
-        this.pageListElements.forEach{element ->
-            var urlImage = ChapterService.getChapterImageUrl(element)
-            val pageModel = PageModel(urlImage)
-            if (this.typeAdd == "ASC"){
-                this.pageModelList.add(pageModel)
-            }else{
-                this.pageModelList.add(0,pageModel)
-            }
-        }
-
-        this.pageAdapter.notifyDataSetChanged()
-        this.progressBar.visibility = View.GONE
-        val handler = Handler()
-        handler.postDelayed({
-            this.isLoading = false;
-        }, 2000)
+        val taskDetail = TaskGetDetail()
+        taskDetail.execute(urlDetail)
     }
 
-    private fun loadChapter(){
-        val list = DetailService.getListChapter(this.docOld)
+    private fun loadChapter() {
+        val list = DetailService.getListChapter(this.doc)
         if (list != null) {
             chapterListElements = list
         }
 
-        chapterListElements.forEach{element ->
+        chapterListElements.forEachIndexed { index, element ->
             val url = DetailService.getChapterUrl(element)
             val name = DetailService.getChapterName(element)
             val time = DetailService.getChapterTimeAgo(element)
@@ -155,19 +142,39 @@ class ReadActivity : AppCompatActivity() {
                 name,
                 time
             )
+            if (this.url == url) {
+                currentIndex = index
+                currentName.text = name
+            }
             chapterModelList.add(chapterModel)
         }
+
+        if ((currentIndex + 1) < this.chapterModelList.size) {
+            this.chapterBack = this.chapterModelList[currentIndex + 1]
+        } else {
+            val back = findViewById<ImageView>(R.id.imageBack);
+            back.visibility = View.INVISIBLE
+
+        }
+
+        if ((currentIndex - 1) >= 0) {
+            this.chapterNext = this.chapterModelList[currentIndex - 1]
+        } else {
+            val next = findViewById<ImageView>(R.id.imageNext);
+            next.visibility = View.INVISIBLE
+        }
+
     }
 
-    inner class TaskGetImages : AsyncTask<String, Void, Document>() {
+
+    inner class TaskGetDetail : AsyncTask<String, Void, Document>() {
         override fun doInBackground(vararg params: String): Document {
             doc = Constants.getDataComic(params[0])
             return doc
         }
 
         override fun onPostExecute(result: Document?) {
-            if (result != null){
-                getData()
+            if (result != null) {
                 loadChapter()
             }
         }
