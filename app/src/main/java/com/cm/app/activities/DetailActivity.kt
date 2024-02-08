@@ -84,6 +84,7 @@ class DetailActivity : AppCompatActivity() {
         val search = findViewById<ImageView>(R.id.imageSearch)
         val read = findViewById<TextView>(R.id.textRead)
         val filter = findViewById<ImageView>(R.id.imageFilter)
+        val image: ImageView = findViewById(R.id.imageProduct)
 
         home.setOnClickListener {
             onBackPressed()
@@ -103,19 +104,20 @@ class DetailActivity : AppCompatActivity() {
         read.setOnClickListener{
             val intent = Intent(this@DetailActivity,ReadActivity::class.java)
             intent.putExtra("url", this.firstChapter.url)
+            intent.putExtra("urlDetail", url)
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            val options = ActivityOptions.makeSceneTransitionAnimation(this@DetailActivity, read, "image_transition")
+            val options = ActivityOptions.makeSceneTransitionAnimation(this@DetailActivity, image, "transition_image")
             startActivity(intent,options.toBundle())
         }
 
         this.chapterAdapter.setOnItemClickListener(object : ChapterAdapter.onItemClickListener{
             override fun onItemCLick(position: Int) {
                 val intent = Intent(this@DetailActivity,ReadActivity::class.java)
-                intent.putExtra("index",position)
                 intent.putExtra("url", chapterModelList[position].url)
-                intent.putExtra("docOld", doc.toString())
+                intent.putExtra("urlDetail", url)
+                val options = ActivityOptions.makeSceneTransitionAnimation(this@DetailActivity, image, "transition_image")
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                startActivity(intent)
+                startActivity(intent,options.toBundle())
             }
         })
 

@@ -5,7 +5,7 @@ import org.jsoup.nodes.Document
 
 class Constants {
     companion object {
-        const val BASE_COMIC_URL = "https://www.nettruyenclub.com/";
+        const val BASE_COMIC_URL = "https://www.nettruyenss.com/";
 
         fun getDataComic(url: String): Document {
             val doc = Jsoup.connect(url)
