@@ -5,10 +5,20 @@
     <string name="tac_gia">Tác giả:</string>
     <string name="tinh_trang">Tình trạng:</string>
     <string name="doc_truyen">Đọc truyện</string>
-    <string name="them_yeu_thich">Thêm yêu thích</string>
+    <string name="them_yeu_thich">Yêu thích</string>
     <string name="mo_ta">Mô tả</string>
     <string name="noi_dung">Vừa làm nhân vật phản diện Lăng Thần vừa làm anh hùng Diệp Tử Mộ, có đến mấy chục năm tình cảm gút mắc... Đương nhiên, là đều muốn đánh bại đối phương cái chủng loại kia cừu thị! Nhưng mà, ngoài ý muốn khởi động thiết lập lại khóa để Lăng Thần về tới mười bảy tuổi! Đây quả thực là cơ hội trời cho a! Thừa dịp anh hùng chưa lớn lên, đương nhiên là trước phải nhổ cỏ tận gốc!</string>
     <string name="danh_sach_chuong">Danh sách chương</string>
     <string name="luot_xem">Lượt xem:</string>
     <string name="tim_kiem">Tìm kiếm...</string>
+    <string name="home">Home</string>
+    <string name="history">History</string>
+    <string name="search">Search</string>
+    <string name="favorite">Favorite</string>
+    <string name="setting">Setting</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="dang_doc">Đang đọc:</string>
+    <string name="xoa">Xóa</string>
+    <string name="doc_tiep">Đọc tiếp</string>
 </resources>

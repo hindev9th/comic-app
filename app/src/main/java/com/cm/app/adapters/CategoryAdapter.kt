@@ -5,10 +5,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.cm.app.models.Category
 import com.cm.app.R
-import com.cm.app.models.CategoryModel
 
-class CategoryAdapter(private val categoriesList: List<CategoryModel>) :
+class CategoryAdapter(private val categoriesList: List<Category>) :
     RecyclerView.Adapter<CategoryAdapter.ViewHolder>() {
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val name:TextView = itemView.findViewById(R.id.textCategoryName)

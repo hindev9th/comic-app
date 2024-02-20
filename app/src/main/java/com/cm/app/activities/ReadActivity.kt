@@ -9,26 +9,27 @@ import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import com.cm.app.models.Chapter
 import com.cm.app.R
-import com.cm.app.models.ChapterModel
-import com.cm.app.services.DetailService
-import com.cm.app.utilities.Constants
+import com.cm.app.repositories.ChapterRepository
+import com.cm.app.utils.Constants
 import com.google.android.material.bottomappbar.BottomAppBar
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 
 class ReadActivity : AppCompatActivity() {
-    private lateinit var chapterModelList: ArrayList<ChapterModel>
+    private lateinit var chapterModelList: ArrayList<Chapter>
     private lateinit var chapterListElements: Elements
     private lateinit var progressBar: FrameLayout
     private lateinit var doc: Document
     private lateinit var webView: WebView
+    private lateinit var iChapterRepository: ChapterRepository
     private var isLoading = true
     private lateinit var urlDetail: String
     private lateinit var url: String
     private lateinit var currentName: TextView
-    private lateinit var chapterNext: ChapterModel
-    private lateinit var chapterBack: ChapterModel
+    private lateinit var chapterNext: Chapter
+    private lateinit var chapterBack: Chapter
     private var currentIndex = 0
     private lateinit var back: ImageView
     private lateinit var next: ImageView
@@ -38,14 +39,15 @@ class ReadActivity : AppCompatActivity() {
         setContentView(R.layout.activity_read)
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
 
-        this.chapterModelList = arrayListOf<ChapterModel>()
+        this.iChapterRepository = ChapterRepository()
+        this.chapterModelList = arrayListOf<Chapter>()
         this.progressBar = findViewById(R.id.progressBar)
         this.next = findViewById(R.id.imageNext)
         this.back = findViewById(R.id.imageBack)
         this.currentName = findViewById(R.id.textCurrentChapterName)
 
         this.url = intent.getStringExtra("url").toString()
-        this.urlDetail = intent.getStringExtra("urlDetail").toString()
+        this.urlDetail = Constants.BASE_COMIC_URL + intent.getStringExtra("urlDetail").toString()
         this.currentIndex = intent.getIntExtra("index", 0)
 
         this.webView = findViewById<WebView>(R.id.webView)
@@ -128,27 +130,7 @@ class ReadActivity : AppCompatActivity() {
     }
 
     private fun loadChapter() {
-        val list = DetailService.getListChapter(this.doc)
-        if (list != null) {
-            chapterListElements = list
-        }
-
-        chapterListElements.forEachIndexed { index, element ->
-            val url = DetailService.getChapterUrl(element)
-            val name = DetailService.getChapterName(element)
-            val time = DetailService.getChapterTimeAgo(element)
-            val chapterModel = ChapterModel(
-                url,
-                name,
-                time
-            )
-            if (this.url == url) {
-                currentIndex = index
-                currentName.text = name
-            }
-            chapterModelList.add(chapterModel)
-        }
-
+        chapterModelList = this.iChapterRepository.getList(this.doc)
         if ((currentIndex + 1) < this.chapterModelList.size) {
             this.chapterBack = this.chapterModelList[currentIndex + 1]
         } else {

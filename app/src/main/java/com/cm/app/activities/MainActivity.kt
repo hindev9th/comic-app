@@ -1,146 +1,157 @@
 package com.cm.app.activities
 
 import android.annotation.SuppressLint
-import android.content.Intent
-import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.ProgressBar
-import androidx.recyclerview.widget.RecyclerView
+import android.widget.Toast
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import com.cm.app.R
-import com.cm.app.adapters.ProductAdapter
-import com.cm.app.models.ProductModel
-import com.cm.app.services.ProductService
-import com.cm.app.utilities.Constants
-import org.jsoup.nodes.Document
-import org.jsoup.nodes.Element
-import org.jsoup.select.Elements
+import com.cm.app.fragments.FavoriteFragment
+import com.cm.app.fragments.HistoryFragment
+import com.cm.app.fragments.HomeFragment
+import com.cm.app.fragments.SearchFragment
+import com.cm.app.fragments.SettingFragment
+import com.cm.app.utils.Constants
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var productList: ArrayList<ProductModel>
-    private lateinit var dataList: Elements
-    private lateinit var productAdapter: ProductAdapter
-    private lateinit var progressBar : FrameLayout
-    private lateinit var doc : Document
-    private var index: Int = 1
-    private var isLoading = true;
-
+    private lateinit var frameLayout: FrameLayout
+    private lateinit var bottomNavigation: BottomNavigationView
+    private var currentFragment: Fragment? = null
+    private val db = Firebase.firestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        this.progressBar = findViewById(R.id.progressBar)
 
-        this.recyclerView = findViewById(R.id.recyclerProducts)
-        this.recyclerView.setHasFixedSize(true)
-
-        this.productList = arrayListOf<ProductModel>()
-        this.productAdapter = ProductAdapter(this.productList)
-        this.recyclerView.adapter = this.productAdapter
-        this.setData()
+        frameLayout = findViewById(R.id.progressBar)
+        bottomNavigation = findViewById(R.id.layoutBottomBar)
+        bottomNavigation.visibility = View.GONE
         this.listeners()
-
+        getDomain()
+//        setDomain()
     }
 
-    private fun listeners() {
-        val home = findViewById<ImageView>(R.id.imageHome)
-        val search = findViewById<ImageView>(R.id.imageSearch)
-        this.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                if (!recyclerView.canScrollVertically(1) && !isLoading) {
-                    index += 1;
-                    setData()
+//    fun setDomain(){
+//        val user = hashMapOf(
+//            "domain" to "https://www.nettruyenss.com/",
+//            "name" to "Net Truyện",
+//        )
+//
+//// Add a new document with a generated ID
+//        db.collection("constants")
+//            .add(user)
+//            .addOnSuccessListener { documentReference ->
+//                Log.d("Database","ok");
+//            }
+//            .addOnFailureListener { e ->
+//                Log.d("Database","loi te le roi");
+//            }
+//    }
+
+    fun getDomain(): Boolean {
+        db.collection("constants")
+            .document("vZp2YVkLM1yPG3SUjepu")
+            .get()
+            .addOnSuccessListener { result ->
+                if (Constants.BASE_COMIC_URL != result.get("domain").toString()) {
+                    Constants.BASE_COMIC_URL = result.get("domain").toString()
                 }
+                bottomNavigation.visibility = View.VISIBLE
+                replaceFragment(HomeFragment(), 0, 0)
             }
-
-        })
-
-        home.setOnClickListener{
-            this.isLoading = true
-            this.progressBar.visibility = View.VISIBLE
-            val task = MyNetworkTask()
-            task.execute(Constants.BASE_COMIC_URL)
-        }
-
-        search.setOnClickListener{
-            val intent = Intent(this@MainActivity,SearchActivity::class.java)
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            startActivity(intent)
-        }
-
+            .addOnFailureListener { exception ->
+                Log.d("Database", "ko lay duoc du lieu")
+                Toast.makeText(this@MainActivity, "Can't connect server!", Toast.LENGTH_LONG).show()
+                bottomNavigation.visibility = View.VISIBLE
+                replaceFragment(HomeFragment(), 0, 0)
+            }
+        return true
     }
 
-    inner class MyNetworkTask : AsyncTask<String, Void, Elements>() {
+    @SuppressLint("ResourceType")
+    private fun listeners() {
 
-        override fun doInBackground(vararg params: String): Elements? {
-            doc = Constants.getDataComic(params[0])
-            return ProductService.getListComic(doc)
-        }
+        bottomNavigation.itemIconTintList =
+            ContextCompat.getColorStateList(this, R.drawable.bottom_bar_color)
+        bottomNavigation.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.navigation_home -> {
+                    if (currentFragment !is HomeFragment) {
+                        replaceFragment(HomeFragment(), R.anim.slide_in_left, R.anim.slide_out_right)
+                    }
+//                    hideAndShowProgressBar(View.VISIBLE)
+                    true
+                }
 
-        override fun onPostExecute(result: Elements?) {
-            if (result != null) {
-                dataList = result
-                getData()
-            } else {
-                // Handle error
+                R.id.navigation_history -> {
+                    if (currentFragment !is HistoryFragment) {
+                        if (currentFragment is SearchFragment || currentFragment is FavoriteFragment){
+                            replaceFragment(HistoryFragment(), R.anim.slide_in_left, R.anim.slide_out_right)
+                        }else{
+                            replaceFragment(HistoryFragment(), R.anim.slide_in_right, R.anim.slide_out_left)
+                        }
+                    }
+//                    hideAndShowProgressBar(View.VISIBLE)
+                    true
+                }
+
+                R.id.navigation_search -> {
+                    if (currentFragment !is SearchFragment) {
+                        if (currentFragment is FavoriteFragment){
+                            replaceFragment(SearchFragment(), R.anim.slide_in_left, R.anim.slide_out_right)
+                        }else{
+                            replaceFragment(SearchFragment(), R.anim.slide_in_right, R.anim.slide_out_left)
+                        }
+                    }
+                    true
+                }
+
+                R.id.navigation_favorite -> {
+                    if (currentFragment !is FavoriteFragment) {
+                        if (currentFragment is SettingFragment){
+                            replaceFragment(FavoriteFragment(), R.anim.slide_in_left, R.anim.slide_out_right)
+                        }else{
+                            replaceFragment(FavoriteFragment(), R.anim.slide_in_right, R.anim.slide_out_left)
+                        }
+                    }
+                    true
+                }
+
+                R.id.navigation_setting -> {
+                    if (currentFragment !is SettingFragment) {
+                        replaceFragment(SettingFragment(), R.anim.slide_in_right, R.anim.slide_out_left)
+                    }
+                    true
+                }
+
+                else -> false
             }
         }
     }
 
-    private fun setData() {
+    private fun replaceFragment(fragment: Fragment, enterAnim: Int, exitAnim: Int) {
+        val transaction = supportFragmentManager.beginTransaction()
 
-        this.isLoading = true
-        val task = MyNetworkTask()
-        task.execute(Constants.BASE_COMIC_URL+"?page="+this.index)
+        transaction.setCustomAnimations(enterAnim, exitAnim)
+
+        // Replace the fragment
+        transaction.replace(R.id.fragment_container, fragment)
+        transaction.addToBackStack(null) // Add this line if you want to support back navigation
+        transaction.commit()
+
+        // Update the currentFragment reference
+        currentFragment = fragment
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private fun getData() {
-        this.dataList.forEach { element ->
-            val url = ProductService.getComicUrl(element)
-            val name = ProductService.getComicName(element)
-            val image = ProductService.getImageComicUrl(element)
-            var chap1 = ""
-            var chapkey1 = ""
-            var chap2 = ""
-            var chapkey2 = ""
-            try {
-                chap1 = ProductService.getComicChapter1(element)
-                chapkey1 = ProductService.getComicChapter1Url(element)
-                chap2 = ProductService.getComicChapter2(element)
-                chapkey2 = ProductService.getComicChapter2Url(element)
-            }catch (e : Exception){
-
-            }
-
-            val productModel = ProductModel(
-                url,
-                image,
-                name,
-                chapkey1,
-                chap1,
-                chapkey2,
-                chap2
-            )
-
-            this.productList.add(productModel)
-        }
-
-        this.productAdapter.notifyDataSetChanged()
-
-        this.progressBar.visibility = View.GONE
-        val handler = Handler()
-        handler.postDelayed({
-            this.isLoading = false;
-        }, 2000)
-
+    fun hideAndShowProgressBar(view: Int) {
+        this.frameLayout.visibility = view
     }
 }

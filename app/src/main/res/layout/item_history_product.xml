@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="5dp"
+    android:layout_marginTop="5dp"
+    android:layout_marginBottom="5dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/background_chapter_number">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardViewImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="10dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:id="@+id/imageProduct"
+            android:layout_width="100dp"
+            android:layout_height="150dp"
+            android:transitionName="transition_image"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_launcher_background" />
+
+        <FrameLayout
+            android:id="@+id/progressBarImage"
+            android:layout_width="100dp"
+            android:layout_height="150dp"
+            android:visibility="gone"
+            android:background="@color/white">
+
+            <ProgressBar
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:indeterminateTint="@color/primary" />
+
+        </FrameLayout>
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/textName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:text="@string/noi_dung"
+        android:maxLines="2"
+        android:textColor="@color/head_color"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/cardViewImage"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/textTitleChapter"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="@string/dang_doc"
+        android:textSize="14sp"
+        android:textColor="@color/secondary_text"
+        app:layout_constraintTop_toBottomOf="@+id/textName"
+        app:layout_constraintStart_toStartOf="@+id/textName"/>
+    
+    <TextView
+        android:id="@+id/textCurrentChapter"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:text="@string/dang_doc"
+        android:textSize="14sp"
+        android:textColor="@color/secondary_text"
+        app:layout_constraintTop_toTopOf="@id/textTitleChapter"
+        app:layout_constraintStart_toEndOf="@id/textTitleChapter"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/textDelete"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:background="@drawable/background_chapter"
+        android:padding="5dp"
+        android:text="@string/xoa"
+        android:textAlignment="center"
+        android:textColor="@color/white_text"
+        android:textSize="18sp"
+        app:drawableStartCompat="@drawable/ic_trash"
+        app:drawableTint="@color/white_text"
+        app:layout_constraintTop_toBottomOf="@id/textTitleChapter"
+        app:layout_constraintStart_toStartOf="@id/textTitleChapter"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <TextView
+        android:id="@+id/textRead"
+        android:layout_width="130dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/background_read"
+        android:padding="5dp"
+        android:textAlignment="center"
+        android:text="@string/doc_tiep"
+        android:textColor="@color/white_text"
+        android:textSize="18sp"
+        app:drawableStartCompat="@drawable/ic_play"
+        app:drawableTint="@color/white_text"
+        app:layout_constraintTop_toBottomOf="@id/textTitleChapter"
+        app:layout_constraintStart_toEndOf="@id/textDelete"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
