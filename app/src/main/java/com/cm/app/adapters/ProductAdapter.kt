@@ -10,33 +10,38 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.cm.app.models.Product
 import com.cm.app.R
 import com.cm.app.activities.DetailActivity
 import com.cm.app.activities.ReadActivity
-import com.cm.app.models.ProductModel
+import com.cm.app.data.database.dao.HistoryDao
+import com.cm.app.data.database.entities.History
+import com.cm.app.utils.Constants
+import com.google.gson.Gson
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 
-class ProductAdapter(private var mList: ArrayList<ProductModel> = ArrayList()) :
+class ProductAdapter(
+    private var mList: ArrayList<Product> = ArrayList(),
+    private val historyDao: HistoryDao
+) :
     RecyclerView.Adapter<ProductAdapter.ViewHolder>() {
 
-
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)  {
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var progressBar: FrameLayout = itemView.findViewById(R.id.progressBar)
-        val image:ImageView = itemView.findViewById(R.id.ImageProduct)
-        val name:TextView = itemView.findViewById(R.id.textName)
-        val chapNumber1:TextView = itemView.findViewById(R.id.textChapterNumber1)
-        val chapNumber2:TextView = itemView.findViewById(R.id.textChapterNumber2)
+        val image: ImageView = itemView.findViewById(R.id.ImageProduct)
+        val name: TextView = itemView.findViewById(R.id.textName)
+        val chapNumber1: TextView = itemView.findViewById(R.id.textChapterNumber1)
+        val chapNumber2: TextView = itemView.findViewById(R.id.textChapterNumber2)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -48,80 +53,106 @@ class ProductAdapter(private var mList: ArrayList<ProductModel> = ArrayList()) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currentItem = mList[position]
 
-        Glide.with(holder.image.context).load(currentItem.image).listener(object : RequestListener<Drawable>{
-            override fun onLoadFailed(
-                e: GlideException?,
-                model: Any?,
-                target: Target<Drawable>?,
-                isFirstResource: Boolean
-            ): Boolean {
-                holder.progressBar.visibility = View.GONE
-                return false
-            }
+        val gson = Gson()
+        val product = gson.toJson(currentItem)
 
-            override fun onResourceReady(
-                resource: Drawable?,
-                model: Any?,
-                target: Target<Drawable>?,
-                dataSource: DataSource?,
-                isFirstResource: Boolean
-            ): Boolean {
-                holder.progressBar.visibility = View.GONE
-                return false
-            }
-        }).into(holder.image)
+        Glide.with(holder.image.context).load(Constants.getBaseImageUrl() + currentItem.urlImage)
+            .listener(object : RequestListener<Drawable> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    holder.progressBar.visibility = View.GONE
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: Drawable?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    dataSource: DataSource?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    holder.progressBar.visibility = View.GONE
+                    return false
+                }
+            }).into(holder.image)
         holder.name.text = currentItem.name
-        if (currentItem.chap1 == ""){
+        if (currentItem.chapFirst.name == "") {
             holder.chapNumber1.visibility = View.GONE
         }
-        if (currentItem.chap2 == ""){
+        if (currentItem.chapSecond.name == "") {
             holder.chapNumber2.visibility = View.GONE
         }
-        holder.chapNumber1.text = currentItem.chap1
-        holder.chapNumber2.text = currentItem.chap2
+        holder.chapNumber1.text = currentItem.chapFirst.name
+        holder.chapNumber2.text = currentItem.chapSecond.name
 
         holder.image.setOnClickListener {
-            val intent = Intent(holder.image.context,DetailActivity::class.java)
-            intent.putExtra("url",currentItem.url)
-            intent.putExtra("image",currentItem.image)
-            intent.putExtra("name",currentItem.name)
+            val intent = Intent(holder.image.context, DetailActivity::class.java)
+            intent.putExtra("product", product)
             val activity = holder.image.context as Activity
-            val options = ActivityOptions.makeSceneTransitionAnimation(activity, holder.image, "transition_image")
+            val options = ActivityOptions.makeSceneTransitionAnimation(
+                activity,
+                holder.image,
+                "transition_image"
+            )
 
-            startActivity(holder.image.context, intent,options.toBundle())
+            startActivity(holder.image.context, intent, options.toBundle())
         }
         holder.chapNumber1.setOnClickListener {
+            val history = History(
+                currentItem.id,
+                currentItem.name,
+                currentItem.url,
+                currentItem.urlImage,
+                currentItem.chapFirst.id,
+                "Chapter "+currentItem.chapFirst.name,
+                currentItem.chapFirst.url,
+                Constants.getCurrentDateTime()
+            )
+            historyDao.insertOrUpdate(history)
+
             val intent = Intent(holder.chapNumber1.context, ReadActivity::class.java)
-            intent.putExtra("url", currentItem.chapUrl1)
-            intent.putExtra("urlDetail",currentItem.url)
+            intent.putExtra("url", Constants.BASE_COMIC_URL + currentItem.chapFirst.url)
+            intent.putExtra("urlDetail", Constants.BASE_COMIC_URL + currentItem.url)
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
             val activity = holder.chapNumber1.context as Activity
-            val options = ActivityOptions.makeSceneTransitionAnimation(activity, holder.image, "transition_image")
-            startActivity(holder.image.context,intent,options.toBundle())
+            val options =
+                ActivityOptions.makeSceneTransitionAnimation(activity, holder.image, "transition")
+            startActivity(holder.image.context, intent, options.toBundle())
         }
         holder.chapNumber2.setOnClickListener {
+            val history = History(
+                currentItem.id,
+                currentItem.name,
+                currentItem.url,
+                currentItem.urlImage,
+                currentItem.chapSecond.id,
+                "Chapter "+currentItem.chapSecond.name,
+                currentItem.chapSecond.url,
+                Constants.getCurrentDateTime()
+            )
+            historyDao.insertOrUpdate(history)
+
             val intent = Intent(holder.chapNumber2.context, ReadActivity::class.java)
-            intent.putExtra("url", currentItem.chapUrl2)
-            intent.putExtra("urlDetail",currentItem.url)
+            intent.putExtra("url", Constants.BASE_COMIC_URL + currentItem.chapSecond.url)
+            intent.putExtra("urlDetail", Constants.BASE_COMIC_URL + currentItem.url)
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
             val activity = holder.chapNumber2.context as Activity
-            val options = ActivityOptions.makeSceneTransitionAnimation(activity, holder.image, "transition_image")
-            startActivity(holder.image.context,intent,options.toBundle())
+            val options =
+                ActivityOptions.makeSceneTransitionAnimation(activity, holder.image, "transition")
+            startActivity(holder.image.context, intent, options.toBundle())
         }
     }
 
 
     override fun getItemCount(): Int {
-        return mList.size ?: 0
+        return mList.size
     }
 
-    fun showToast(context:Context, message:String){
-        Toast.makeText(context,message,Toast.LENGTH_SHORT).show();
-    }
-
-    fun addItems(products: ArrayList<ProductModel>){
-        val lastPos: Int = mList.size.minus(1)
-        mList.addAll(products)
-        notifyItemRangeInserted(lastPos, products.size)
+    fun showToast(context: Context, message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 }

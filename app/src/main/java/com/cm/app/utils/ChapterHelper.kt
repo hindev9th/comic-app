@@ -1,10 +1,10 @@
-package com.cm.app.services
+package com.cm.app.utils
 
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 
-class ChapterService {
+class ChapterHelper {
     companion object{
         fun getChapterListImage(doc: Document): Elements {
             // Kotlin's type-safe selectors for cleaner querying

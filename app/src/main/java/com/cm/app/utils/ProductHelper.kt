@@ -1,4 +1,4 @@
-package com.cm.app.services
+package com.cm.app.utils
 
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -6,9 +6,9 @@ import org.jsoup.select.Elements
 import java.text.Normalizer
 import java.util.regex.Pattern
 
-class ProductService {
+class ProductHelper {
     companion object{
-        fun getListComic(doc: Document): Elements? {
+        fun getListComic(doc: Document): Elements {
             // Kotlin supports type-safe selectors for cleaner querying
             return doc.select("div.ModuleContent div.items div.row div.item figure")
         }
@@ -46,13 +46,19 @@ class ProductService {
             return string.replace("\\s+".toRegex(), "")
         }
 
-        fun getComicId(element: Element): String? {
+        fun getComicId(element: Element): String {
             val figcaption = element.selectFirst("figcaption")
             val ul = figcaption.selectFirst("ul")
-            return ul?.attr("data-id")
+            return ul.attr("data-id")
         }
 
 
+        fun getComicChapter1Id(element: Element): String {
+            val figcaption = element.selectFirst("figcaption")
+            val ul = figcaption.selectFirst("ul")
+            val id = ul?.selectFirst("li")?.selectFirst("a")?.attr("data-id")
+            return id ?: ""
+        }
         fun getComicChapter1(element: Element): String {
             val figcaption = element.selectFirst("figcaption")
             val ul = figcaption.selectFirst("ul")
@@ -70,6 +76,14 @@ class ProductService {
             val url = ul?.selectFirst("li")?.selectFirst("a")?.attr("href")
 
             return url ?: ""
+        }
+
+        fun getComicChapter2Id(element: Element): String {
+            val figcaption = element.selectFirst("figcaption")
+            val ul = figcaption.selectFirst("ul")
+            val id = ul?.select("li")?.get(1)?.selectFirst("a")?.attr("data-id")
+
+            return id ?: ""
         }
 
         fun getComicChapter2(element: Element): String {

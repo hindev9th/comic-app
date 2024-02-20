@@ -1,15 +1,16 @@
-package com.cm.app.services
+package com.cm.app.utils
 
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import java.util.regex.Pattern
 
-class DetailService {
+class DetailHelper {
     companion object {
         fun getView(doc: Document): String {
+            val length = doc.select("article#item-detail div.detail-info div.row div.col-info ul.list-info li").size
             val view =
-                doc.select("article#item-detail div.detail-info div.row div.col-info ul.list-info li")[3].select(
+                doc.select("article#item-detail div.detail-info div.row div.col-info ul.list-info li")[length-1].select(
                     "p.col-xs-8"
                 )
             return view.text() ?: ""
@@ -45,7 +46,7 @@ class DetailService {
             return element.attr("href") ?: "" // Handle potential null values
         }
 
-        fun getListChapter(doc: Document): Elements? {
+        fun getListChapter(doc: Document): Elements {
             // Kotlin supports type-safe selectors for cleaner querying
             return doc.select("div#nt_listchapter nav ul li")
         }
@@ -81,10 +82,10 @@ class DetailService {
         }
 
 
-        fun getChapterId(element: Element): String? {
+        fun getChapterId(element: Element): String {
             val div = element.selectFirst("div")
-            val a = div?.selectFirst("a")
-            return a?.attr("data-id")
+            val a = div.selectFirst("a")
+            return a.attr("data-id")
         }
 
     }
