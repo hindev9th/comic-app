@@ -55,6 +55,8 @@ class ProductAdapter(
 
         val gson = Gson()
         val product = gson.toJson(currentItem)
+        val chapter1 = gson.toJson(currentItem.chapFirst)
+        val chapter2 = gson.toJson(currentItem.chapSecond)
 
         Glide.with(holder.image.context).load(Constants.getBaseImageUrl() + currentItem.urlImage)
             .listener(object : RequestListener<Drawable> {
@@ -102,21 +104,11 @@ class ProductAdapter(
             startActivity(holder.image.context, intent, options.toBundle())
         }
         holder.chapNumber1.setOnClickListener {
-            val history = History(
-                currentItem.id,
-                currentItem.name,
-                currentItem.url,
-                currentItem.urlImage,
-                currentItem.chapFirst.id,
-                "Chapter "+currentItem.chapFirst.name,
-                currentItem.chapFirst.url,
-                Constants.getCurrentDateTime()
-            )
-            historyDao.insertOrUpdate(history)
+            Constants.saveHistory(holder.itemView.context,currentItem,currentItem.chapFirst)
 
             val intent = Intent(holder.chapNumber1.context, ReadActivity::class.java)
-            intent.putExtra("url", Constants.BASE_COMIC_URL + currentItem.chapFirst.url)
-            intent.putExtra("urlDetail", Constants.BASE_COMIC_URL + currentItem.url)
+            intent.putExtra("chapter", chapter1)
+            intent.putExtra("product", product)
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
             val activity = holder.chapNumber1.context as Activity
             val options =
@@ -124,21 +116,11 @@ class ProductAdapter(
             startActivity(holder.image.context, intent, options.toBundle())
         }
         holder.chapNumber2.setOnClickListener {
-            val history = History(
-                currentItem.id,
-                currentItem.name,
-                currentItem.url,
-                currentItem.urlImage,
-                currentItem.chapSecond.id,
-                "Chapter "+currentItem.chapSecond.name,
-                currentItem.chapSecond.url,
-                Constants.getCurrentDateTime()
-            )
-            historyDao.insertOrUpdate(history)
+            Constants.saveHistory(holder.itemView.context,currentItem,currentItem.chapSecond)
 
             val intent = Intent(holder.chapNumber2.context, ReadActivity::class.java)
-            intent.putExtra("url", Constants.BASE_COMIC_URL + currentItem.chapSecond.url)
-            intent.putExtra("urlDetail", Constants.BASE_COMIC_URL + currentItem.url)
+            intent.putExtra("chapter", chapter2)
+            intent.putExtra("product", product)
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
             val activity = holder.chapNumber2.context as Activity
             val options =

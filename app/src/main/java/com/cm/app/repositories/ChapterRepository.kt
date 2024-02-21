@@ -1,6 +1,7 @@
 package com.cm.app.repositories
 
 import com.cm.app.models.Chapter
+import com.cm.app.utils.Constants
 import com.cm.app.utils.DetailHelper
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -14,7 +15,7 @@ class ChapterRepository:IChapterRepository {
             val name = getName(res)
             val time = getTimeAgo(res)
             val views = getView(res)
-            val url = getUrl(res)
+            val url = getUrl(res).replace(Constants.BASE_COMIC_URL,"")
 
             val chapter = Chapter(id,url,name,time,views)
             chapters.add(chapter)
