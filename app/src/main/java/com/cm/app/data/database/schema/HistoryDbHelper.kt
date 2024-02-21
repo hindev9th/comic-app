@@ -11,7 +11,7 @@ class HistoryDbHelper(context: Context) : SQLiteOpenHelper(context,DATABASE_NAME
 
         private const val SQL_CREATE_ENTRIES = """
             CREATE TABLE ${HistoryContact.TABLE_NAME} (
-                ${HistoryContact.COLUMN_ID} TEXT,
+                ${HistoryContact.COLUMN_ID} TEXT PRIMARY KEY ,
                 ${HistoryContact.COLUMN_NAME} TEXT,
                 ${HistoryContact.COLUMN_URL} TEXT,
                 ${HistoryContact.COLUMN_IMAGE_URL} TEXT,

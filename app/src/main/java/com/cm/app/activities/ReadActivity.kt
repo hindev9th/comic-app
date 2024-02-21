@@ -11,28 +11,30 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.cm.app.models.Chapter
 import com.cm.app.R
+import com.cm.app.models.Product
 import com.cm.app.repositories.ChapterRepository
 import com.cm.app.utils.Constants
 import com.google.android.material.bottomappbar.BottomAppBar
+import com.google.gson.Gson
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
+import java.util.regex.Pattern
 
 class ReadActivity : AppCompatActivity() {
     private lateinit var chapterModelList: ArrayList<Chapter>
-    private lateinit var chapterListElements: Elements
     private lateinit var progressBar: FrameLayout
     private lateinit var doc: Document
     private lateinit var webView: WebView
     private lateinit var iChapterRepository: ChapterRepository
     private var isLoading = true
-    private lateinit var urlDetail: String
-    private lateinit var url: String
     private lateinit var currentName: TextView
     private lateinit var chapterNext: Chapter
     private lateinit var chapterBack: Chapter
-    private var currentIndex = 0
+    private lateinit var currentChapter :Chapter
+    private lateinit var product: Product
     private lateinit var back: ImageView
     private lateinit var next: ImageView
+    private var currentIndex = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,9 +48,9 @@ class ReadActivity : AppCompatActivity() {
         this.back = findViewById(R.id.imageBack)
         this.currentName = findViewById(R.id.textCurrentChapterName)
 
-        this.url = intent.getStringExtra("url").toString()
-        this.urlDetail = Constants.BASE_COMIC_URL + intent.getStringExtra("urlDetail").toString()
-        this.currentIndex = intent.getIntExtra("index", 0)
+        val gson = Gson()
+        this.currentChapter = gson.fromJson(intent.getStringExtra("chapter").toString(),Chapter::class.java)
+        this.product = gson.fromJson(intent.getStringExtra("product").toString(),Product::class.java)
 
         this.webView = findViewById<WebView>(R.id.webView)
 
@@ -61,17 +63,13 @@ class ReadActivity : AppCompatActivity() {
 
 
         next.setOnClickListener {
-            this.url = this.chapterNext.url
-            this.currentName.text = this.chapterNext.name
-            currentIndex -= 1
-
+            this.currentChapter = this.chapterNext
+            Constants.saveHistory(this,this.product,this.currentChapter)
             this.loadPage()
         }
         back.setOnClickListener {
-            this.url = this.chapterBack.url
-            this.currentName.text = this.chapterBack.name
-
-            currentIndex += 1
+            this.currentChapter = this.chapterBack
+            Constants.saveHistory(this,this.product,this.currentChapter)
             this.loadPage()
 
         }
@@ -92,6 +90,12 @@ class ReadActivity : AppCompatActivity() {
     }
 
     fun loadPage() {
+        val pattern = Pattern.compile("\\d+")
+        val matcher = pattern.matcher(this.currentChapter.name)
+        matcher.find()
+
+        this.currentName.text = "Chapter ${matcher.group()}"
+        this.getPositionCurrentChapter()
         this.progressBar.visibility = View.VISIBLE
         this.webView.settings.javaScriptEnabled = true
         this.webView.webViewClient = object : WebViewClient() {
@@ -120,13 +124,18 @@ class ReadActivity : AppCompatActivity() {
             }
         }
 
-        this.webView.loadUrl(this.url)
+        this.webView.loadUrl(Constants.BASE_COMIC_URL+this.currentChapter.url)
+    }
+
+    fun getPositionCurrentChapter(): Int {
+        this.currentIndex = chapterModelList.indexOfFirst { it.id == currentChapter.id }
+        return this.currentIndex
     }
 
     fun setData() {
         isLoading = true
         val taskDetail = TaskGetDetail()
-        taskDetail.execute(urlDetail)
+        taskDetail.execute(Constants.BASE_COMIC_URL + this.product.url)
     }
 
     private fun loadChapter() {
@@ -145,7 +154,7 @@ class ReadActivity : AppCompatActivity() {
             val next = findViewById<ImageView>(R.id.imageNext);
             next.visibility = View.INVISIBLE
         }
-
+        this.getPositionCurrentChapter()
     }
 
 
@@ -155,10 +164,8 @@ class ReadActivity : AppCompatActivity() {
             return doc
         }
 
-        override fun onPostExecute(result: Document?) {
-            if (result != null) {
-                loadChapter()
-            }
+        override fun onPostExecute(result: Document) {
+            loadChapter()
         }
     }
 }

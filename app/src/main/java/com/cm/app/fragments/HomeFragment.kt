@@ -31,10 +31,6 @@ class HomeFragment : Fragment() {
     private var index: Int = 1
     private var isLoading = true
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        retainInstance = true
-    }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -114,7 +110,6 @@ class HomeFragment : Fragment() {
 
     private fun setData() {
         this.isLoading = true
-        process.visibility = View.VISIBLE
         val task = MyNetworkTask()
         task.execute(Constants.BASE_COMIC_URL +"?page="+this.index)
 

@@ -16,6 +16,7 @@ import com.cm.app.data.database.dao.HistoryDao
 import com.cm.app.data.database.entities.History
 import com.cm.app.models.Product
 import com.cm.app.utils.Constants
+import com.google.gson.Gson
 import java.util.regex.Pattern
 
 class ChapterAdapter(private var chapterList: ArrayList<Chapter>,private val product:Product,private val historyDao: HistoryDao) :
@@ -38,6 +39,10 @@ class ChapterAdapter(private var chapterList: ArrayList<Chapter>,private val pro
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currentChapter = chapterList[position]
+        val gson = Gson()
+        val ct = gson.toJson(currentChapter)
+        val pr = gson.toJson(this.product)
+
         holder.name.text = currentChapter.name
         holder.time.text = currentChapter.time
 
@@ -46,21 +51,11 @@ class ChapterAdapter(private var chapterList: ArrayList<Chapter>,private val pro
         }
 
         holder.itemView.setOnClickListener {
-            val history = History(
-                product.id,
-                product.name,
-                product.url,
-                product.urlImage,
-                currentChapter.id,
-                currentChapter.name,
-                currentChapter.url.replace(Constants.BASE_COMIC_URL,""),
-                Constants.getCurrentDateTime()
-            )
-            historyDao.insertOrUpdate(history)
+            Constants.saveHistory(holder.itemView.context,product,currentChapter)
 
             val intent = Intent(holder.name.context, ReadActivity::class.java)
-            intent.putExtra("url", currentChapter.url)
-            intent.putExtra("urlDetail", this.product.url)
+            intent.putExtra("chapter", ct)
+            intent.putExtra("product", pr)
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
 
             val options = ActivityOptions.makeSceneTransitionAnimation(
