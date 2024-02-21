@@ -15,12 +15,6 @@
         android:theme="@style/Theme.ComicApp"
         tools:targetApi="31">
         <activity
-            android:name=".fragments.HomeFragment"
-            android:exported="false" />
-        <activity
-            android:name=".fragments.SearchFragment"
-            android:exported="false" />
-        <activity
             android:name=".activities.ReadActivity"
             android:exported="false" />
         <activity
