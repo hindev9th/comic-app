@@ -100,6 +100,9 @@ class DetailActivity : AppCompatActivity() {
         val filter = findViewById<ImageView>(R.id.imageFilter)
         val image: ImageView = findViewById(R.id.imageProduct)
 
+        val gson  = Gson()
+        val pr = gson.toJson(product)
+        val ct = gson.toJson(firstChapter)
 
         filter.setOnClickListener{
             this.chapterModelList.reverse()
@@ -108,8 +111,8 @@ class DetailActivity : AppCompatActivity() {
 
         read.setOnClickListener{
             val intent = Intent(this@DetailActivity,ReadActivity::class.java)
-            intent.putExtra("url", this.firstChapter.url)
-            intent.putExtra("urlDetail", product.url)
+            intent.putExtra("chapter", ct)
+            intent.putExtra("product", pr)
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
             startActivity(intent)
         }
