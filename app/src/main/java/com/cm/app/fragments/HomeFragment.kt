@@ -4,11 +4,13 @@ import android.annotation.SuppressLint
 import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.cm.app.models.Product
@@ -83,20 +85,13 @@ class HomeFragment : Fragment() {
             }
             return doc
         }
-        @SuppressLint("NotifyDataSetChanged")
         override fun onPostExecute(result: Document) {
             try {
-                productList += IProductRepository.getList(result)
-                productAdapter.notifyDataSetChanged()
-                process.visibility = View.GONE
-                (activity as MainActivity).hideAndShowProgressBar(View.GONE)
-                val handler = Handler()
-                handler.postDelayed({
-                    isLoading = false;
-                }, 2000)
+                loadData()
             }catch (e : Exception){
                 process.visibility = View.GONE
                 (activity as MainActivity).hideAndShowProgressBar(View.GONE)
+                Toast.makeText(this@HomeFragment.context, "Error!", Toast.LENGTH_LONG).show()
             }
 
         }
@@ -113,5 +108,18 @@ class HomeFragment : Fragment() {
         val task = MyNetworkTask()
         task.execute(Constants.BASE_COMIC_URL +"?page="+this.index)
 
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun loadData(){
+        val  list = IProductRepository.getList(doc)
+        productList += list
+        productAdapter.notifyDataSetChanged()
+        process.visibility = View.GONE
+        (activity as MainActivity).hideAndShowProgressBar(View.GONE)
+        val handler = Handler()
+        handler.postDelayed({
+            isLoading = false;
+        }, 2000)
     }
 }

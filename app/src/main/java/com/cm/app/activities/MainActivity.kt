@@ -9,6 +9,7 @@ import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.cm.app.R
 import com.cm.app.fragments.FavoriteFragment
 import com.cm.app.fragments.HistoryFragment
@@ -26,11 +27,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var bottomNavigation: BottomNavigationView
     private var currentFragment: Fragment? = null
     private val db = Firebase.firestore
+    private lateinit var fragmentManager : FragmentManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        fragmentManager = supportFragmentManager
         frameLayout = findViewById(R.id.progressBar)
         bottomNavigation = findViewById(R.id.layoutBottomBar)
         bottomNavigation.visibility = View.GONE
@@ -65,20 +68,18 @@ class MainActivity : AppCompatActivity() {
                     Constants.BASE_COMIC_URL = result.get("domain").toString()
                 }
                 bottomNavigation.visibility = View.VISIBLE
-                replaceFragment(HomeFragment(), 0, 0)
+                initFragment(HomeFragment())
             }
             .addOnFailureListener { exception ->
-                Log.d("Database", "ko lay duoc du lieu")
                 Toast.makeText(this@MainActivity, "Can't connect server!", Toast.LENGTH_LONG).show()
                 bottomNavigation.visibility = View.VISIBLE
-                replaceFragment(HomeFragment(), 0, 0)
+                initFragment(HomeFragment())
             }
         return true
     }
 
     @SuppressLint("ResourceType")
     private fun listeners() {
-
         bottomNavigation.itemIconTintList =
             ContextCompat.getColorStateList(this, R.drawable.bottom_bar_color)
         bottomNavigation.setOnNavigationItemSelectedListener { item ->
@@ -87,7 +88,6 @@ class MainActivity : AppCompatActivity() {
                     if (currentFragment !is HomeFragment) {
                         replaceFragment(HomeFragment(), R.anim.slide_in_left, R.anim.slide_out_right)
                     }
-//                    hideAndShowProgressBar(View.VISIBLE)
                     true
                 }
 
@@ -99,7 +99,6 @@ class MainActivity : AppCompatActivity() {
                             replaceFragment(HistoryFragment(), R.anim.slide_in_right, R.anim.slide_out_left)
                         }
                     }
-//                    hideAndShowProgressBar(View.VISIBLE)
                     true
                 }
 
@@ -141,12 +140,18 @@ class MainActivity : AppCompatActivity() {
         val transaction = supportFragmentManager.beginTransaction()
 
         transaction.setCustomAnimations(enterAnim, exitAnim)
-
         // Replace the fragment
         transaction.replace(R.id.fragment_container, fragment)
         transaction.addToBackStack(null) // Add this line if you want to support back navigation
         transaction.commit()
 
+        // Update the currentFragment reference
+        currentFragment = fragment
+    }
+    private fun initFragment(fragment: Fragment) {
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.fragment_container, fragment)
+        transaction.commit()
         // Update the currentFragment reference
         currentFragment = fragment
     }

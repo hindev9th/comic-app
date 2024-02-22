@@ -35,8 +35,9 @@ class SearchFragment : Fragment() {
     private lateinit var doc: Document
     private lateinit var search: ImageView
     private lateinit var inputSearch: EditText
-    private var index: Int = 1
-    private var isLoading = true;
+    private lateinit var historyDao: HistoryDao
+    private var index = 1
+    private var isLoading = true
     private var url = Constants.BASE_COMIC_URL
 
     override fun onCreateView(
@@ -61,8 +62,8 @@ class SearchFragment : Fragment() {
         this.iProductRepository = ProductRepository()
         this.productList = arrayListOf<Product>()
 
-        val historyDao = HistoryDao(requireContext())
-        this.productAdapter = ProductAdapter(this.productList,historyDao)
+        historyDao = HistoryDao(requireContext())
+        this.productAdapter = ProductAdapter(this.productList, historyDao)
         this.recyclerView.adapter = this.productAdapter
 
         this.listeners()
@@ -87,15 +88,15 @@ class SearchFragment : Fragment() {
 
         inputSearch.setOnEditorActionListener { v, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                var inputString: String = inputSearch.text.toString()
+                val inputString: String = inputSearch.text.toString()
                 var stringNew = inputString.trim()
                 stringNew = stringNew.replace(" ", "+")
-                this.url = this.url + "tim-truyen?keyword=" + stringNew
+                url = Constants.BASE_COMIC_URL + "tim-truyen?keyword=" + stringNew
                 inputSearch.clearFocus()
                 hideKeyboard(v)
-                this.isLoading = true
-                this.index = 1
-                this.progressBar.visibility = View.VISIBLE
+                isLoading = true
+                index = 1
+                progressBar.visibility = View.VISIBLE
                 search.visibility = View.INVISIBLE
                 setData()
                 return@setOnEditorActionListener true
@@ -104,15 +105,15 @@ class SearchFragment : Fragment() {
         }
 
         search.setOnClickListener {
-            var inputString: String = inputSearch.text.toString()
+            val inputString: String = inputSearch.text.toString()
             var stringNew = inputString.trim()
             stringNew = stringNew.replace(" ", "+")
-            this.url = this.url + "tim-truyen?keyword=" + stringNew
+            url = Constants.BASE_COMIC_URL + "tim-truyen?keyword=" + stringNew
             inputSearch.clearFocus()
             hideKeyboard(it)
-            this.isLoading = true
-            this.index = 1
-            this.progressBar.visibility = View.VISIBLE
+            isLoading = true
+            index = 1
+            progressBar.visibility = View.VISIBLE
             search.visibility = View.INVISIBLE
             setData()
         }
@@ -132,19 +133,8 @@ class SearchFragment : Fragment() {
 
         @SuppressLint("NotifyDataSetChanged")
         override fun onPostExecute(document: Document) {
-            try {
-                productList += iProductRepository.getList(document)
-                productAdapter.notifyDataSetChanged()
+            loadData()
 
-                progressBar.visibility = View.GONE
-                search.visibility = View.VISIBLE
-                val handler = Handler()
-                handler.postDelayed({
-                    isLoading = false;
-                }, 2000)
-            } catch (e: Exception) {
-                progressBar.visibility = View.GONE
-            }
         }
 
         override fun onCancelled() {
@@ -156,7 +146,8 @@ class SearchFragment : Fragment() {
     }
 
     private fun hideKeyboard(view: View) {
-        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val imm =
+            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
@@ -165,6 +156,29 @@ class SearchFragment : Fragment() {
         this.isLoading = true
         val task = MyNetworkTask()
         task.execute(this.url + "&page=" + this.index)
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun loadData() {
+        try {
+            if (index != 1) {
+                productList += iProductRepository.getList(doc)
+                productAdapter.notifyDataSetChanged()
+            } else {
+                productList = iProductRepository.getList(doc)
+                productAdapter = ProductAdapter(productList, historyDao)
+                recyclerView.adapter = productAdapter
+            }
+            progressBar.visibility = View.GONE
+            search.visibility = View.VISIBLE
+            val handler = Handler()
+            handler.postDelayed({
+                isLoading = false;
+            }, 2000)
+        } catch (e: Exception) {
+            progressBar.visibility = View.GONE
+            Toast.makeText(requireContext(), "Error", Toast.LENGTH_LONG).show()
+        }
     }
 
 }

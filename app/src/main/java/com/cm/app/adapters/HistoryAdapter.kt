@@ -22,11 +22,15 @@ import com.cm.app.activities.DetailActivity
 import com.cm.app.activities.ReadActivity
 import com.cm.app.data.database.dao.HistoryDao
 import com.cm.app.data.database.entities.History
+import com.cm.app.models.Chapter
 import com.cm.app.models.Product
 import com.cm.app.utils.Constants
 import com.google.gson.Gson
 
-class HistoryAdapter(private var mList: ArrayList<History> = ArrayList() , private val historyDao: HistoryDao):
+class HistoryAdapter(
+    private var mList: ArrayList<History> = ArrayList(),
+    private val historyDao: HistoryDao
+) :
     RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -53,20 +57,29 @@ class HistoryAdapter(private var mList: ArrayList<History> = ArrayList() , priva
 
         val gson = Gson()
         val product = gson.toJson(currentItem)
+        val chapter = gson.toJson(
+            Chapter(
+                currentItem.chapterId,
+                currentItem.chapterUrl,
+                currentItem.chapterName,
+                "",
+                ""
+            )
+        )
 
         holder.name.text = currentItem.name
         holder.chapterName.text = currentItem.chapterName
 
-        holder.btnDelete.setOnClickListener{e ->
+        holder.btnDelete.setOnClickListener { e ->
             historyDao.deleteHistoryById(currentItem.id)
             mList.removeAt(position)
             notifyDataSetChanged()
         }
 
-        holder.btnRead.setOnClickListener{ e ->
+        holder.btnRead.setOnClickListener { e ->
             val intent = Intent(holder.name.context, ReadActivity::class.java)
-            intent.putExtra("url",Constants.BASE_COMIC_URL +  currentItem.chapterUrl)
-            intent.putExtra("urlDetail",Constants.BASE_COMIC_URL +  currentItem.url)
+            intent.putExtra("product", product)
+            intent.putExtra("chapter", chapter)
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
             val options = ActivityOptions.makeSceneTransitionAnimation(
                 holder.name.context as Activity,
@@ -77,7 +90,7 @@ class HistoryAdapter(private var mList: ArrayList<History> = ArrayList() , priva
             ContextCompat.startActivity(holder.name.context, intent, options.toBundle())
         }
 
-        holder.image.setOnClickListener{e ->
+        holder.image.setOnClickListener { e ->
             val intent = Intent(holder.image.context, DetailActivity::class.java)
             intent.putExtra("product", product)
             val activity = holder.image.context as Activity

@@ -5,10 +5,10 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import com.cm.app.data.database.entities.History
 import com.cm.app.data.database.schema.HistoryContact
-import com.cm.app.data.database.schema.HistoryDbHelper
+import com.cm.app.data.database.schema.DbHelper
 
 class HistoryDao(context: Context) {
-    private val dbHelper = HistoryDbHelper(context)
+    private val dbHelper = DbHelper(context)
 
 
     fun insertHistory(
@@ -61,47 +61,49 @@ class HistoryDao(context: Context) {
         db.close()
     }
 
-    fun getHistory(pageNumber: Int): ArrayList<History> {
+    fun getHistory(): ArrayList<History> {
         val histories = ArrayList<History>()
         val db = dbHelper.readableDatabase
         val limit = 5
-        val offset = limit * (pageNumber - 1)
+//        val offset = limit * (pageNumber - 1)
 
         val sortOrder = "${HistoryContact.COLUMN_CREATED_AT} DESC"
-        val cursor = db.query(
-            HistoryContact.TABLE_NAME,
-            arrayOf(
-                HistoryContact.COLUMN_ID,
-                HistoryContact.COLUMN_NAME,
-                HistoryContact.COLUMN_URL,
-                HistoryContact.COLUMN_IMAGE_URL,
-                HistoryContact.COLUMN_CHAPTER_ID,
-                HistoryContact.COLUMN_CHAPTER_NAME,
-                HistoryContact.COLUMN_CHAPTER_URL,
-                HistoryContact.COLUMN_CREATED_AT,
-            ),
-            null,
-            null,
-            null,
-            null,
-            sortOrder,
-            "$offset,$limit"
-        )
-        with(cursor) {
-            while (moveToNext()) {
-                val id = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_ID))
-                val name = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_NAME))
-                val url = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_URL))
-                val imageUrl = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_IMAGE_URL))
-                val chapterId = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_CHAPTER_ID))
-                val chapterName =
-                    getString(getColumnIndexOrThrow(HistoryContact.COLUMN_CHAPTER_NAME))
-                val chapterUrl = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_CHAPTER_URL))
-                val createdAt = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_CREATED_AT))
-                histories.add(History(id, name, url, imageUrl, chapterId, chapterName, chapterUrl,createdAt))
+        try {
+            val cursor = db.query(
+                HistoryContact.TABLE_NAME,
+                arrayOf(
+                    HistoryContact.COLUMN_ID,
+                    HistoryContact.COLUMN_NAME,
+                    HistoryContact.COLUMN_URL,
+                    HistoryContact.COLUMN_IMAGE_URL,
+                    HistoryContact.COLUMN_CHAPTER_ID,
+                    HistoryContact.COLUMN_CHAPTER_NAME,
+                    HistoryContact.COLUMN_CHAPTER_URL,
+                    HistoryContact.COLUMN_CREATED_AT,
+                ),
+                null,
+                null,
+                null,
+                null,
+                sortOrder,
+            )
+            with(cursor) {
+                while (moveToNext()) {
+                    val id = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_ID))
+                    val name = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_NAME))
+                    val url = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_URL))
+                    val imageUrl = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_IMAGE_URL))
+                    val chapterId = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_CHAPTER_ID))
+                    val chapterName =
+                        getString(getColumnIndexOrThrow(HistoryContact.COLUMN_CHAPTER_NAME))
+                    val chapterUrl = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_CHAPTER_URL))
+                    val createdAt = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_CREATED_AT))
+                    histories.add(History(id, name, url, imageUrl, chapterId, chapterName, chapterUrl,createdAt))
+                }
+                close()
             }
-            close()
-        }
+        }catch (e :Exception){}
+
         return histories
     }
 
@@ -109,42 +111,46 @@ class HistoryDao(context: Context) {
         val db = dbHelper.readableDatabase
         val selection = "${HistoryContact.COLUMN_ID} = ?"
         val selectionArgs = arrayOf(id)
-        val cursor = db.query(
-            HistoryContact.TABLE_NAME,
-            arrayOf(
-                HistoryContact.COLUMN_ID,
-                HistoryContact.COLUMN_NAME,
-                HistoryContact.COLUMN_URL,
-                HistoryContact.COLUMN_IMAGE_URL,
-                HistoryContact.COLUMN_CHAPTER_ID,
-                HistoryContact.COLUMN_CHAPTER_NAME,
-                HistoryContact.COLUMN_CHAPTER_URL,
-                HistoryContact.COLUMN_CREATED_AT,
-            ),
-            selection,
-            selectionArgs,
-            null,
-            null,
-            null
-        )
         var history: History? = null
-        with(cursor) {
-            if (moveToFirst()) {
-                val id = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_ID))
-                val name = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_NAME))
-                val url = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_URL))
-                val imageUrl = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_URL))
-                val chapterId = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_CHAPTER_ID))
-                val chapterName =
-                    getString(getColumnIndexOrThrow(HistoryContact.COLUMN_CHAPTER_NAME))
-                val chapterUrl = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_CHAPTER_URL))
-                val createdAt = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_CREATED_AT))
+
+        try {
+            val cursor = db.query(
+                HistoryContact.TABLE_NAME,
+                arrayOf(
+                    HistoryContact.COLUMN_ID,
+                    HistoryContact.COLUMN_NAME,
+                    HistoryContact.COLUMN_URL,
+                    HistoryContact.COLUMN_IMAGE_URL,
+                    HistoryContact.COLUMN_CHAPTER_ID,
+                    HistoryContact.COLUMN_CHAPTER_NAME,
+                    HistoryContact.COLUMN_CHAPTER_URL,
+                    HistoryContact.COLUMN_CREATED_AT,
+                ),
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+            )
+            with(cursor) {
+                if (moveToFirst()) {
+                    val id = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_ID))
+                    val name = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_NAME))
+                    val url = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_URL))
+                    val imageUrl = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_IMAGE_URL))
+                    val chapterId = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_CHAPTER_ID))
+                    val chapterName =
+                        getString(getColumnIndexOrThrow(HistoryContact.COLUMN_CHAPTER_NAME))
+                    val chapterUrl = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_CHAPTER_URL))
+                    val createdAt = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_CREATED_AT))
 
 
-                history = History(id, name, url, imageUrl, chapterId, chapterName, chapterUrl,createdAt)
+                    history = History(id, name, url, imageUrl, chapterId, chapterName, chapterUrl,createdAt)
+                }
+                close()
             }
-            close()
-        }
+        }catch (e:Exception){}
+
         return history
     }
 

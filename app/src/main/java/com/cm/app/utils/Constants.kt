@@ -11,6 +11,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.util.Calendar
 import java.text.SimpleDateFormat
+import java.util.regex.Pattern
 
 class Constants {
     companion object {
@@ -40,13 +41,18 @@ class Constants {
 
         fun saveHistory(context: Context, product: Product, chapter: Chapter) {
             var historyDao = HistoryDao(context)
+
+            val pattern = Pattern.compile("\\d+")
+            val matcher = pattern.matcher(chapter.name)
+            matcher.find()
+
             val history = History(
                 product.id,
                 product.name,
                 product.url.replace(Constants.BASE_COMIC_URL,""),
                 product.urlImage.replace(getBaseImageUrl(),""),
                 chapter.id,
-                "Chapter "+chapter.name,
+                "Chapter "+matcher.group(),
                 chapter.url.replace(Constants.BASE_COMIC_URL,""),
                 getCurrentDateTime()
             )
