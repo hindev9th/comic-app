@@ -2,6 +2,7 @@ package com.cm.app.activities
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
@@ -25,7 +26,9 @@ import com.cm.app.repositories.ICategoryRepository
 import com.cm.app.repositories.IChapterRepository
 import com.cm.app.adapters.CategoryAdapter
 import com.cm.app.adapters.ChapterAdapter
+import com.cm.app.data.database.dao.FavoriteDao
 import com.cm.app.data.database.dao.HistoryDao
+import com.cm.app.data.database.entities.Favorite
 import com.cm.app.models.Product
 import com.cm.app.utils.DetailHelper
 import com.cm.app.utils.Constants
@@ -39,20 +42,23 @@ class DetailActivity : AppCompatActivity() {
     private lateinit var doc: Document
     private lateinit var recyclerCategories: RecyclerView
     private lateinit var recyclerChapters: RecyclerView
-    private lateinit var chapterAdapter : ChapterAdapter
+    private lateinit var chapterAdapter: ChapterAdapter
     private lateinit var categoryAdapter: CategoryAdapter
-    private lateinit var chapterModelList : ArrayList<Chapter>
-    private lateinit var chapterModelListBase : ArrayList<Chapter>
-    private lateinit var categoryModelList : ArrayList<Category>
+    private lateinit var chapterModelList: ArrayList<Chapter>
+    private lateinit var chapterModelListBase: ArrayList<Chapter>
+    private lateinit var categoryModelList: ArrayList<Category>
     private lateinit var iChapterRepository: IChapterRepository
     private lateinit var iCategoryRepository: ICategoryRepository
     private lateinit var author: TextView
     private lateinit var textStatus: TextView
     private lateinit var view: TextView
+    private lateinit var textRead: TextView
+    private lateinit var textFavorite: TextView
     private lateinit var description: TextView
-    private lateinit var firstChapter : Chapter
-    private lateinit var historyDao : HistoryDao
-    private lateinit var product : Product
+    private lateinit var firstChapter: Chapter
+    private lateinit var historyDao: HistoryDao
+    private lateinit var favoriteDao: FavoriteDao
+    private lateinit var product: Product
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,12 +73,16 @@ class DetailActivity : AppCompatActivity() {
         this.textStatus = findViewById(R.id.textStatus)
         this.view = findViewById(R.id.textView)
         this.description = findViewById(R.id.textContentDescription)
+        this.textRead = findViewById(R.id.textRead)
+        this.textFavorite = findViewById(R.id.textFavorite)
 
         this.historyDao = HistoryDao(this)
+        this.favoriteDao = FavoriteDao(this)
 
 
         val gson = Gson()
-        this.product = gson.fromJson(intent.getStringExtra("product").toString(),Product::class.java)
+        this.product =
+            gson.fromJson(intent.getStringExtra("product").toString(), Product::class.java)
 
         this.iChapterRepository = ChapterRepository()
         this.iCategoryRepository = CategoryRepository()
@@ -80,11 +90,12 @@ class DetailActivity : AppCompatActivity() {
         this.categoryAdapter = CategoryAdapter(this.categoryModelList)
         this.recyclerCategories.adapter = this.categoryAdapter
 
-        this.chapterAdapter = ChapterAdapter(this.chapterModelList,this.product,historyDao)
+        this.chapterAdapter = ChapterAdapter(this.chapterModelList, this.product, historyDao)
         this.recyclerChapters.adapter = this.chapterAdapter
 
         this.listerEvent()
         this.loadData()
+        loadFavorite(favoriteDao.getById(product.id) != null)
     }
 
     override fun onResume() {
@@ -96,25 +107,29 @@ class DetailActivity : AppCompatActivity() {
     private fun listerEvent() {
 //        val home = findViewById<ImageView>(R.id.imageHome)
 //        val search = findViewById<ImageView>(R.id.imageSearch)
-        val read = findViewById<TextView>(R.id.textRead)
         val filter = findViewById<ImageView>(R.id.imageFilter)
         val image: ImageView = findViewById(R.id.imageProduct)
 
-        val gson  = Gson()
+        val gson = Gson()
         val pr = gson.toJson(product)
-        val ct = gson.toJson(firstChapter)
 
-        filter.setOnClickListener{
+        filter.setOnClickListener {
             this.chapterModelList.reverse()
             this.chapterAdapter.notifyDataSetChanged()
         }
 
-        read.setOnClickListener{
-            val intent = Intent(this@DetailActivity,ReadActivity::class.java)
+        textRead.setOnClickListener {
+            val ct = gson.toJson(firstChapter)
+
+            val intent = Intent(this@DetailActivity, ReadActivity::class.java)
             intent.putExtra("chapter", ct)
             intent.putExtra("product", pr)
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
             startActivity(intent)
+        }
+
+        textFavorite.setOnClickListener{
+            toggleLike()
         }
 
 
@@ -123,7 +138,6 @@ class DetailActivity : AppCompatActivity() {
     fun loadData() {
         val image: ImageView = findViewById(R.id.imageProduct)
         val name: TextView = findViewById(R.id.textName)
-
 
         name.text = this.product.name
 
@@ -152,11 +166,11 @@ class DetailActivity : AppCompatActivity() {
         }).into(image)
 
         val task = MyNetworkTask()
-        task.execute(Constants.BASE_COMIC_URL +  this.product.url)
+        task.execute(Constants.BASE_COMIC_URL + this.product.url)
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun getData(){
+    fun getData() {
         val author = DetailHelper.getAuthor(this.doc)
         val status = DetailHelper.getStatus(this.doc)
         val view = DetailHelper.getView(this.doc)
@@ -172,9 +186,9 @@ class DetailActivity : AppCompatActivity() {
         this.recyclerCategories.adapter = this.categoryAdapter
 
         this.chapterModelList = this.iChapterRepository.getList(this.doc)
-        this.firstChapter = this.chapterModelList[this.chapterModelList.size-1];
+        this.firstChapter = this.chapterModelList[this.chapterModelList.size - 1];
         this.chapterModelListBase = this.chapterModelList
-        this.chapterAdapter = ChapterAdapter(this.chapterModelList,this.product,this.historyDao)
+        this.chapterAdapter = ChapterAdapter(this.chapterModelList, this.product, this.historyDao)
         this.recyclerChapters.adapter = this.chapterAdapter
 
         this.progressBar.visibility = View.GONE
@@ -186,7 +200,7 @@ class DetailActivity : AppCompatActivity() {
         override fun doInBackground(vararg params: String): Document {
             try {
                 doc = Constants.getDataComic(params[0])
-            }catch (e:Exception){
+            } catch (e: Exception) {
                 cancel(true);
             }
             return doc
@@ -194,6 +208,47 @@ class DetailActivity : AppCompatActivity() {
 
         override fun onPostExecute(result: Document) {
             getData()
+        }
+    }
+
+    fun toggleLike() {
+        if (favoriteDao.getById(product.id) != null) {
+            favoriteDao.deleteFavoriteById(product.id)
+            loadFavorite(false)
+        } else {
+            val favorite = Favorite(
+                product.id,
+                product.name,
+                product.url,
+                product.urlImage,
+                firstChapter.id,
+                firstChapter.name,
+                firstChapter.url,
+                Constants.getCurrentDateTime()
+            )
+            favoriteDao.insertFavorite(favorite)
+            loadFavorite(true)
+        }
+
+    }
+
+    fun loadFavorite(boolean: Boolean) {
+        if (boolean) {
+            textFavorite.text = getString(R.string.unlike)
+            textFavorite.setTextColor(getColor(R.color.head_color))
+            textFavorite.background = getDrawable(R.drawable.border_chapter)
+            val drawable: Drawable? = getDrawable(R.drawable.ic_favorite)
+            val color = getColor(R.color.background)
+            drawable?.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+            textFavorite.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
+        } else {
+            textFavorite.text = getString(R.string.them_yeu_thich)
+            textFavorite.setTextColor(getColor(R.color.white_text))
+            textFavorite.background = getDrawable(R.drawable.background_chapter)
+            val drawable: Drawable? = getDrawable(R.drawable.ic_favorite)
+            val color = getColor(R.color.white_text)
+            drawable?.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+            textFavorite.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
         }
     }
 }

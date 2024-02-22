@@ -147,38 +147,50 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/textFavorite"
-                android:layout_width="170dp"
+            <LinearLayout
+                android:id="@+id/linearLayout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:background="@drawable/background_chapter"
-                android:padding="5dp"
-                android:text="@string/them_yeu_thich"
-                android:textAlignment="center"
-                android:textColor="@color/white_text"
-                android:textSize="18sp"
-                app:drawableStartCompat="@drawable/ic_favorite"
-                app:drawableTint="@color/white_text"
-                app:layout_constraintEnd_toStartOf="@+id/textRead"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:orientation="horizontal"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+                <TextView
+                    android:id="@+id/textFavorite"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.475"
+                    android:background="@drawable/border_chapter"
+                    android:padding="5dp"
+                    android:text="@string/them_yeu_thich"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    app:drawableStartCompat="@drawable/ic_favorite"
+                    app:drawableTint="@color/background"/>
 
-            <TextView
-                android:id="@+id/textRead"
-                android:layout_width="170dp"
-                android:layout_height="wrap_content"
-                android:background="@drawable/background_read"
-                android:padding="5dp"
-                android:textAlignment="center"
-                android:text="@string/doc_truyen"
-                android:textColor="@color/white_text"
-                android:textSize="18sp"
-                app:drawableStartCompat="@drawable/ic_play"
-                app:drawableTint="@color/white_text"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/textFavorite"
-                app:layout_constraintTop_toTopOf="parent" />
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="0.05"/>
+
+                <TextView
+                    android:id="@+id/textRead"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.475"
+                    android:background="@drawable/background_read"
+                    android:padding="5dp"
+                    android:textAlignment="center"
+                    android:text="@string/doc_truyen"
+                    android:textColor="@color/white_text"
+                    android:textSize="18sp"
+                    app:drawableStartCompat="@drawable/ic_play"
+                    app:drawableTint="@color/white_text"/>
+            </LinearLayout>
+
 
 
             <TextView
@@ -191,7 +203,7 @@
                 android:textSize="14sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/textRead" />
+                app:layout_constraintTop_toBottomOf="@id/linearLayout" />
 
             <TextView
                 android:id="@+id/textContentDescription"

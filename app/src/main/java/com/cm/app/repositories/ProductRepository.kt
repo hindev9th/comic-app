@@ -53,26 +53,50 @@ class ProductRepository : IProductRepository {
     }
 
     override fun getChapFirstId(element: Element): String {
-        return ProductHelper.getComicChapter1Id(element)
+        return try {
+            ProductHelper.getComicChapter1Id(element)
+        }catch (e : Exception){
+            ""
+        }
     }
 
     override fun getChapFirstName(element: Element): String {
-        return ProductHelper.getComicChapter1(element)
+        return try {
+            ProductHelper.getComicChapter1(element)
+        }catch (e : Exception){
+            ""
+        }
     }
 
     override fun getChapFirstUrl(element: Element): String {
-        return ProductHelper.getComicChapter1Url(element)
+        return try {
+            ProductHelper.getComicChapter1Url(element)
+        }catch (e : Exception){
+            ""
+        }
     }
 
     override fun getChapSecondId(element: Element): String {
-        return ProductHelper.getComicChapter2Id(element)
+        return try {
+            ProductHelper.getComicChapter2Id(element)
+        }catch (e : Exception){
+            ""
+        }
     }
 
     override fun getChapSecondName(element: Element): String {
-        return ProductHelper.getComicChapter2(element)
+        return try {
+            ProductHelper.getComicChapter2(element)
+        }catch (e : Exception){
+            ""
+        }
     }
 
     override fun getChapSecondUrl(element: Element): String {
-        return ProductHelper.getComicChapter2Url(element)
+        return try {
+            ProductHelper.getComicChapter2Url(element)
+        }catch (e : Exception){
+            ""
+        }
     }
 }
