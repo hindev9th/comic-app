@@ -1,8 +1,10 @@
 package com.cm.app.activities
 
+import android.graphics.Bitmap
 import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -53,6 +55,10 @@ class ReadActivity : AppCompatActivity() {
         this.product = gson.fromJson(intent.getStringExtra("product").toString(),Product::class.java)
 
         this.webView = findViewById<WebView>(R.id.webView)
+        webView.clearCache(true)
+        webView.clearHistory()
+        webView.clearMatches()
+        webView.clearView()
 
         this.loadPage()
         this.setData()
@@ -98,14 +104,17 @@ class ReadActivity : AppCompatActivity() {
         this.getPositionCurrentChapter()
         this.progressBar.visibility = View.VISIBLE
         this.webView.settings.javaScriptEnabled = true
+
         this.webView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView, url: String) {
+
+            override fun onLoadResource(view: WebView?, url: String?) {
+                super.onLoadResource(view, url)
+                Log.d("AndroidRuntime","run")
                 val css =
-                    "#header,.notify_block,.top,.reading-control,.mrt5.mrb5.text-center.col-sm-6,.top.bottom,.footer{display: none;} .reading-detail{width:100%;}" //your css as String
+                    "#header,.notify_block,.top,.reading-control,.mrt5.mrb5.text-center.col-sm-6,.top.bottom,.footer, .reading > .container{display: none !important;;}" //your css as String
                 val js =
                     "var style = document.createElement('style'); style.innerHTML = '$css'; document.head.appendChild(style);"
                 webView.evaluateJavascript(js, null)
-                progressBar.visibility = View.GONE
 
                 if ((currentIndex + 1) < chapterModelList.size) {
                     back.visibility = View.VISIBLE
@@ -120,9 +129,20 @@ class ReadActivity : AppCompatActivity() {
                 } else {
                     next.visibility = View.INVISIBLE
                 }
-                super.onPageFinished(view, url)
+            }
+            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                super.onPageStarted(view, url, favicon)
+                progressBar.visibility = View.GONE
+
+                val css =
+                    "#header, .notify_block, .top, .reading-control, .mrt5.mrb5.text-center.col-sm-6, .top.bottom, .footer, .reading > .container {display: none !important;} " //your css as String
+                val js =
+                    "var style = document.createElement('style'); style.innerHTML = '$css'; document.head.appendChild(style);"
+                webView.evaluateJavascript(js, null)
+
             }
         }
+
 
         this.webView.loadUrl(Constants.BASE_COMIC_URL+this.currentChapter.url)
     }
@@ -145,7 +165,6 @@ class ReadActivity : AppCompatActivity() {
         } else {
             val back = findViewById<ImageView>(R.id.imageBack);
             back.visibility = View.INVISIBLE
-
         }
 
         if ((currentIndex - 1) >= 0) {
