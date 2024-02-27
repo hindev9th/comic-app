@@ -1,21 +1,22 @@
 package com.cm.app.utils
 
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
+import android.preference.PreferenceManager
 import com.cm.app.data.database.dao.HistoryDao
 import com.cm.app.data.database.entities.History
 import com.cm.app.models.Chapter
 import com.cm.app.models.Product
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import java.util.Calendar
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.regex.Pattern
+
 
 class Constants {
     companion object {
-        var BASE_COMIC_URL = "https://www.nettruyenbb.com/";
+        var BASE_COMIC_URL = "https://www.nettruyenbb.com/"
+        val SCROLL_NEXT_CHAPTER = "ScrollNextChapter"
 
         fun getDataComic(url: String): Document {
             val doc = Jsoup.connect(url)
@@ -62,6 +63,28 @@ class Constants {
         fun saveHistory(context: Context, history: History) {
             var historyDao = HistoryDao(context)
             historyDao.insertOrUpdate(history)
+        }
+        fun setDefaults(key: String, value: String, context: Context) {
+            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+            val editor = preferences.edit()
+            editor.putString(key, value)
+            editor.apply() // or editor.commit() in case you want to write data instantly
+        }
+        fun setDefaults(key: String, value: Boolean, context: Context) {
+            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+            val editor = preferences.edit()
+            editor.putBoolean(key, value)
+            editor.apply() // or editor.commit() in case you want to write data instantly
+        }
+
+        fun getDefaults(key: String, context: Context): String? {
+            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+            return preferences.getString(key, null)
+        }
+
+        fun getBoolean(key: String, context: Context): Boolean {
+            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+            return preferences.getBoolean(key, false)
         }
     }
 
