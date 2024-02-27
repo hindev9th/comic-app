@@ -200,6 +200,8 @@ class ReadActivity : AppCompatActivity(), PageAdapter.CallbackInterface {
                     "#header,.notify_block,.top,.reading-control,#back-to-top,.mrt5.mrb5.text-center.col-sm-6,.top.bottom,.footer, .reading > .container{display: none !important;;}" //your css as String
                 val js =
                     "var style = document.createElement('style'); style.innerHTML = '$css'; document.head.appendChild(style);"
+                loadNext()
+
                 webView.evaluateJavascript(js, null)
             }
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
@@ -241,6 +243,11 @@ class ReadActivity : AppCompatActivity(), PageAdapter.CallbackInterface {
 
     fun getPositionCurrentChapter(): Int {
         this.currentIndex = chapterModelList.indexOfFirst { it.id == currentChapter.id }
+        loadNext()
+        return this.currentIndex
+    }
+
+    fun loadNext(){
         if ((currentIndex + 1) < chapterModelList.size) {
             back.visibility = View.VISIBLE
             chapterBack = chapterModelList[currentIndex + 1]
@@ -254,7 +261,6 @@ class ReadActivity : AppCompatActivity(), PageAdapter.CallbackInterface {
         } else {
             next.visibility = View.INVISIBLE
         }
-        return this.currentIndex
     }
 
     fun setData() {
