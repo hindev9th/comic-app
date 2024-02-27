@@ -25,4 +25,8 @@
     <string name="nothing">Không có truyện nào cả.</string>
     <string name="login">Đăng Nhập</string>
     <string name="register">Đăng ký</string>
+    <string name="reset">Reset data</string>
+    <string name="backup">Sao lưu / khôi phục</string>
+    <string name="next_chap">Cuộn để chuyển chương</string>
+    <string name="no_new_chapter">Chưa có chapter mới!</string>
 </resources>
