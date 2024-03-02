@@ -102,8 +102,6 @@ class ReadActivity : AppCompatActivity(), PageAdapter.CallbackInterface {
     }
 
     fun listerEvent() {
-
-
         next.setOnClickListener {
             this.currentChapter = this.chapterNext
             Constants.saveHistory(this,this.product,this.currentChapter)
@@ -136,41 +134,35 @@ class ReadActivity : AppCompatActivity(), PageAdapter.CallbackInterface {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 if (!isLoading){
-                    if (dy < 0){
-                        if (!recyclerView.canScrollVertically(-1) && dy != 0 && (currentIndex + 1) < chapterModelList.size){
-                            Log.d("AndroidRuntime","Back")
-                            isLoading = true
-                            currentChapter = chapterBack
-//                            Constants.saveHistory(baseContext,product,currentChapter)
-                            pageModelList.add(0,chapterBack)
-                            pageAdapter.notifyItemChanged(0)
-                            getPositionCurrentChapter()
-                            val handler = Handler()
-                            handler.postDelayed({
-                                isLoading = false
-                            }, 10000)
-                        }
-                    }
+//                    if (dy < 0){
+//                        if (!recyclerView.canScrollVertically(-1) && dy != 0 && (currentIndex + 1) < chapterModelList.size){
+//                            Log.d("AndroidRuntime","Back")
+//                            isLoading = true
+//                            currentChapter = chapterModelList[currentIndex + 1]
+//                            pageModelList.add(0,chapterModelList[currentIndex + 1])
+////                            Constants.saveHistory(baseContext,product,currentChapter)
+//                            pageAdapter.notifyItemInserted(0)
+//                            recyclerView.smoothScrollToPosition(0)
+//                            getPositionCurrentChapter()
+//                        }
+//                    }
                     if (dy > 0) { //check for scroll down
                         if(!recyclerView.canScrollVertically(1) && dy != 0)
                         {
                             if ((currentIndex - 1) >= 0){
                                 Log.d("AndroidRuntime","NEXT")
                                 isLoading = true
-                                currentChapter = chapterNext
+                                currentChapter = chapterModelList[currentIndex - 1]
+                                pageModelList.add(chapterModelList[currentIndex - 1])
                                 Constants.saveHistory(baseContext,product,currentChapter)
-                                pageModelList.add(chapterNext)
-                                pageAdapter.notifyDataSetChanged()
+                                recyclerPage.adapter?.notifyItemInserted(pageModelList.size - 1)
                                 getPositionCurrentChapter()
-                                val handler = Handler()
-                                handler.postDelayed({
-                                    isLoading = false
-                                }, 10000)
                             }else{
                                 if (!isShowEnd){
                                     val chapter = Chapter("","","","","")
                                     pageModelList.add(chapter)
-                                    pageAdapter.notifyDataSetChanged()
+                                    recyclerPage.adapter?.notifyItemInserted(pageModelList.size - 1)
+//                                    pageAdapter.notifyItemInserted(pageModelList.size - 1)
                                     isShowEnd = true
                                 }
                             }
@@ -192,7 +184,7 @@ class ReadActivity : AppCompatActivity(), PageAdapter.CallbackInterface {
         this.currentName.text = "Chapter ${matcher.group()}"
         this.getPositionCurrentChapter()
         this.webView.settings.javaScriptEnabled = true
-
+        progressBar.visibility = View.VISIBLE
         this.webView.webViewClient = object : WebViewClient() {
             override fun onPageCommitVisible(view: WebView?, url: String?) {
                 super.onPageCommitVisible(view, url)
@@ -200,21 +192,25 @@ class ReadActivity : AppCompatActivity(), PageAdapter.CallbackInterface {
                     "#header,.notify_block,.top,.reading-control,#back-to-top,.mrt5.mrb5.text-center.col-sm-6,.top.bottom,.footer, .reading > .container{display: none !important;;}" //your css as String
                 val js =
                     "var style = document.createElement('style'); style.innerHTML = '$css'; document.head.appendChild(style);"
-                loadNext()
 
                 webView.evaluateJavascript(js, null)
             }
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
-                progressBar.visibility = View.GONE
-                showNext()
 
                 val css =
                     "#header, .notify_block, .top, .reading-control,#back-to-top, .mrt5.mrb5.text-center.col-sm-6, .top.bottom, .footer, .reading > .container {display: none !important;} " //your css as String
                 val js =
                     "var style = document.createElement('style'); style.innerHTML = '$css'; document.head.appendChild(style);"
                 webView.evaluateJavascript(js, null)
+                progressBar.visibility = View.GONE
 
+            }
+
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                showNext()
+                loadNext()
             }
 
             @Deprecated("Deprecated in Java")
@@ -232,7 +228,7 @@ class ReadActivity : AppCompatActivity(), PageAdapter.CallbackInterface {
                 error: WebResourceError?
             ) {
                 super.onReceivedError(view, request, error)
-                view?.loadUrl("about:blank")
+//                view?.loadUrl("about:blank")
                 Toast.makeText(this@ReadActivity, "Error occured, please check newtwork connectivity", Toast.LENGTH_SHORT).show()
             }
         }
@@ -242,8 +238,7 @@ class ReadActivity : AppCompatActivity(), PageAdapter.CallbackInterface {
     }
 
     fun getPositionCurrentChapter(): Int {
-        this.currentIndex = chapterModelList.indexOfFirst { it.id == currentChapter.id }
-        loadNext()
+        this.currentIndex = chapterModelList.indexOfFirst { it.chapterId == currentChapter.chapterId }
         return this.currentIndex
     }
 
@@ -314,6 +309,9 @@ class ReadActivity : AppCompatActivity(), PageAdapter.CallbackInterface {
     }
 
     override fun setIsLoading(value: Boolean) {
-        isLoading = value
+        val handler = Handler()
+        handler.postDelayed({
+            isLoading = value
+        }, 5000)
     }
 }

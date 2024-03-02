@@ -52,7 +52,7 @@ class Constants {
                 product.name,
                 product.url.replace(Constants.BASE_COMIC_URL,""),
                 product.urlImage.replace(getBaseImageUrl(),""),
-                chapter.id,
+                chapter.chapterId,
                 "Chapter "+matcher.group(),
                 chapter.url.replace(Constants.BASE_COMIC_URL,""),
                 getCurrentDateTime()
