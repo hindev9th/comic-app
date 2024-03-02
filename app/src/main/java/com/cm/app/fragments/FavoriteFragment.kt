@@ -8,18 +8,24 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.cm.app.R
+import com.cm.app.ViewModel.ChapterListViewModel
 import com.cm.app.adapters.FavoriteAdapter
 import com.cm.app.adapters.HistoryAdapter
 import com.cm.app.data.database.dao.FavoriteDao
 import com.cm.app.data.database.dao.HistoryDao
 import com.cm.app.data.database.entities.Favorite
 import com.cm.app.data.database.entities.History
+import com.cm.app.repositories.ChapterRepository
+import com.cm.app.repositories.IChapterRepository
 
 class FavoriteFragment : Fragment() {
     private lateinit var listFavorite : ArrayList<Favorite>
     private lateinit var favoriteAdapter: FavoriteAdapter
     private lateinit var recyclerFavorite : RecyclerView
     private lateinit var favoriteDao: FavoriteDao
+    private lateinit var historyDao: HistoryDao
+    private lateinit var chapterRepository: ChapterRepository
+    private lateinit var chapterListViewModel: ChapterListViewModel
     private lateinit var textNoComic: TextView
     private var index = 1
     private var isLoading = false
@@ -35,11 +41,14 @@ class FavoriteFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         this.favoriteDao = FavoriteDao(requireContext())
+        this.historyDao = HistoryDao(requireContext())
+        this.chapterRepository = ChapterRepository()
+        this.chapterListViewModel = ChapterListViewModel(this.chapterRepository)
         this.recyclerFavorite = view.findViewById(R.id.recyclerFavorite)
         this.textNoComic = view.findViewById(R.id.textNoComic)
 
         this.listFavorite = favoriteDao.getFavorite()
-        this.favoriteAdapter = FavoriteAdapter(this.listFavorite,favoriteDao)
+        this.favoriteAdapter = FavoriteAdapter(this.listFavorite,favoriteDao,historyDao,chapterListViewModel,chapterRepository)
         this.recyclerFavorite.adapter = this.favoriteAdapter
         if (listFavorite.size > 0 ){
             textNoComic.visibility = View.GONE

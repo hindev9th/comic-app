@@ -29,4 +29,5 @@
     <string name="backup">Sao lưu / khôi phục</string>
     <string name="next_chap">Cuộn để chuyển chương</string>
     <string name="no_new_chapter">Chưa có chapter mới!</string>
+    <string name="chapter_new">Chapter mới nhất:</string>
 </resources>

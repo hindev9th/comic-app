@@ -107,6 +107,59 @@ class HistoryDao(context: Context) {
         return histories
     }
 
+    fun getHistory(ids: List<String>): ArrayList<History> {
+        val histories = ArrayList<History>()
+        val db = dbHelper.readableDatabase
+        val limit = 5
+//        val offset = limit * (pageNumber - 1)
+
+        val sortOrder = "${HistoryContact.COLUMN_CREATED_AT} DESC"
+
+        val selectionArgs = ids.map { it }.toTypedArray()
+
+        val selection = "${HistoryContact.COLUMN_ID} IN (?)"
+
+        try {
+            val cursor = db.query(
+                HistoryContact.TABLE_NAME,
+                arrayOf(
+                    HistoryContact.COLUMN_ID,
+                    HistoryContact.COLUMN_NAME,
+                    HistoryContact.COLUMN_URL,
+                    HistoryContact.COLUMN_IMAGE_URL,
+                    HistoryContact.COLUMN_CHAPTER_ID,
+                    HistoryContact.COLUMN_CHAPTER_NAME,
+                    HistoryContact.COLUMN_CHAPTER_URL,
+                    HistoryContact.COLUMN_CREATED_AT,
+                ),
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder,
+            )
+            with(cursor) {
+                while (moveToNext()) {
+                    val id = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_ID))
+                    val name = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_NAME))
+                    val url = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_URL))
+                    val imageUrl = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_IMAGE_URL))
+                    val chapterId = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_CHAPTER_ID))
+                    val chapterName =
+                        getString(getColumnIndexOrThrow(HistoryContact.COLUMN_CHAPTER_NAME))
+                    val chapterUrl = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_CHAPTER_URL))
+                    val createdAt = getString(getColumnIndexOrThrow(HistoryContact.COLUMN_CREATED_AT))
+                    histories.add(History(id, name, url, imageUrl, chapterId, chapterName, chapterUrl,createdAt))
+                }
+                close()
+            }
+        } catch (e: Exception) {
+            // Handle potential exception
+        }
+
+        return histories
+    }
+
     fun getById(id: String): History? {
         val db = dbHelper.readableDatabase
         val selection = "${HistoryContact.COLUMN_ID} = ?"

@@ -55,6 +55,7 @@ class DetailActivity : AppCompatActivity() {
     private lateinit var textRead: TextView
     private lateinit var textFavorite: TextView
     private lateinit var description: TextView
+    private lateinit var frameLayoutBack: FrameLayout
     private lateinit var firstChapter: Chapter
     private lateinit var historyDao: HistoryDao
     private lateinit var favoriteDao: FavoriteDao
@@ -75,6 +76,7 @@ class DetailActivity : AppCompatActivity() {
         this.description = findViewById(R.id.textContentDescription)
         this.textRead = findViewById(R.id.textRead)
         this.textFavorite = findViewById(R.id.textFavorite)
+        this.frameLayoutBack = findViewById(R.id.frameLayoutBack)
 
         this.historyDao = HistoryDao(this)
         this.favoriteDao = FavoriteDao(this)
@@ -132,7 +134,9 @@ class DetailActivity : AppCompatActivity() {
             toggleLike()
         }
 
-
+        frameLayoutBack.setOnClickListener{
+            this.onBackPressed()
+        }
     }
 
     fun loadData() {
@@ -221,7 +225,7 @@ class DetailActivity : AppCompatActivity() {
                 product.name,
                 product.url,
                 product.urlImage,
-                firstChapter.id,
+                firstChapter.chapterId,
                 firstChapter.name,
                 firstChapter.url,
                 Constants.getCurrentDateTime()

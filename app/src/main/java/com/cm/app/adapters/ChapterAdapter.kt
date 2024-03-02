@@ -46,7 +46,7 @@ class ChapterAdapter(private var chapterList: ArrayList<Chapter>,private val pro
         holder.name.text = currentChapter.name
         holder.time.text = currentChapter.time
 
-        if (historyDao.getById(this.product.id)?.chapterId == currentChapter.id){
+        if (historyDao.getById(this.product.id)?.chapterId == currentChapter.chapterId){
             holder.itemView.setBackgroundResource(R.drawable.border_chapter)
         }
 

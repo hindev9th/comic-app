@@ -3,6 +3,7 @@ package com.cm.app.adapters
 import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -57,11 +58,13 @@ class PageAdapter(private val pageList: List<Chapter>, private val callbackInter
         if (currentImage.name != ""){
             holder.textStart.text =  "Start chapter ${currentImage.name}"
             holder.textEnd.text =  "End chapter ${currentImage.name}"
-
+            holder.progressBar.visibility = View.VISIBLE
             holder.webView.settings.javaScriptEnabled = true
             holder.webView.webViewClient = object : WebViewClient() {
                 override fun onPageCommitVisible(view: WebView?, url: String?) {
                     super.onPageCommitVisible(view, url)
+                    Log.d("AndroidRuntime",url.toString())
+
                     val css =
                         "#header,.notify_block,.top,.reading-control,#back-to-top,.mrt5.mrb5.text-center.col-sm-6,.top.bottom,.footer, .reading > .container{display: none !important;;}" //your css as String
                     val js =
@@ -70,13 +73,13 @@ class PageAdapter(private val pageList: List<Chapter>, private val callbackInter
                 }
                 override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                     super.onPageStarted(view, url, favicon)
-                    holder.progressBar.visibility = View.GONE
 
                     val css =
                         "#header, .notify_block, .top, .reading-control,#back-to-top, .mrt5.mrb5.text-center.col-sm-6, .top.bottom, .footer, .reading > .container {display: none !important;} " //your css as String
                     val js =
                         "var style = document.createElement('style'); style.innerHTML = '$css'; document.head.appendChild(style);"
                     holder.webView.evaluateJavascript(js, null)
+                    holder.progressBar.visibility = View.GONE
 
                 }
 
@@ -88,7 +91,7 @@ class PageAdapter(private val pageList: List<Chapter>, private val callbackInter
                 @Deprecated("Deprecated in Java")
                 override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                     if (url == null || !url.startsWith("https://") || !url.startsWith("http://")) {
-                        view?.stopLoading()
+                        holder.webView.stopLoading()
                         return false
                     }else{
                         return true
@@ -100,7 +103,7 @@ class PageAdapter(private val pageList: List<Chapter>, private val callbackInter
                     error: WebResourceError?
                 ) {
                     super.onReceivedError(view, request, error)
-                    view?.loadUrl("about:blank")
+//                    view?.loadUrl("about:blank")
                     Toast.makeText(holder.webView.context, "Error occured, please check newtwork connectivity", Toast.LENGTH_SHORT).show()
                 }
             }

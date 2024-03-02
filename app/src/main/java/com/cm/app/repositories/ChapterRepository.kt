@@ -1,8 +1,12 @@
 package com.cm.app.repositories
 
+import android.util.Log
 import com.cm.app.models.Chapter
+import com.cm.app.models.ChapterResponse
+import com.cm.app.network.ChapterApi
 import com.cm.app.utils.Constants
 import com.cm.app.utils.DetailHelper
+import com.google.gson.Gson
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 
@@ -19,6 +23,20 @@ class ChapterRepository:IChapterRepository {
 
             val chapter = Chapter(id,url,name,time,views)
             chapters.add(chapter)
+        }
+        return chapters
+    }
+
+    override suspend fun getChapters(comicId: String): ArrayList<Chapter> {
+        var chapters = arrayListOf<Chapter>()
+        try {
+            val gson = Gson()
+            val response = ChapterApi.retrofitService.getChapter(comicId)
+            val chapterResponse = gson.fromJson(response.body(),ChapterResponse::class.java)
+            chapters = chapterResponse.chapters
+
+        } catch (e: Exception) {
+            Log.e("AndroidRuntime", "Error fetching post: ${e.message}")
         }
         return chapters
     }

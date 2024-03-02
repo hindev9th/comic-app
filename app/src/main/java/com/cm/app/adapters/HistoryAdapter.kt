@@ -38,6 +38,8 @@ class HistoryAdapter(
         val image: ImageView = itemView.findViewById(R.id.imageProduct)
         val name: TextView = itemView.findViewById(R.id.textName)
         val chapterName: TextView = itemView.findViewById(R.id.textCurrentChapter)
+        val chapterNameNew: TextView = itemView.findViewById(R.id.textChapterNew)
+        val chapterTitleNameNew: TextView = itemView.findViewById(R.id.textTitleChapterNew)
         val btnDelete: TextView = itemView.findViewById(R.id.textDelete)
         val btnRead: TextView = itemView.findViewById(R.id.textRead)
     }
@@ -75,7 +77,7 @@ class HistoryAdapter(
             mList.removeAt(position)
             notifyDataSetChanged()
         }
-
+        holder.chapterTitleNameNew.visibility = View.GONE
         holder.btnRead.setOnClickListener { e ->
             val intent = Intent(holder.name.context, ReadActivity::class.java)
             intent.putExtra("product", product)
