@@ -30,4 +30,7 @@
     <string name="next_chap">Cuộn để chuyển chương</string>
     <string name="no_new_chapter">Chưa có chapter mới!</string>
     <string name="chapter_new">Chapter mới nhất:</string>
+    <string name="start_chapter">Start chapter %1$s</string>
+    <string name="end_chapter">End chapter %1$s</string>
+    <string name="chapter">Chapter %1$s</string>
 </resources>

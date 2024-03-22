@@ -94,14 +94,17 @@ class ProductAdapter(
         holder.image.setOnClickListener {
             val intent = Intent(holder.image.context, DetailActivity::class.java)
             intent.putExtra("product", product)
-            val activity = holder.image.context as Activity
-            val options = ActivityOptions.makeSceneTransitionAnimation(
-                activity,
-                holder.image,
-                "transition_image"
+
+            // Start activity with custom animation
+            (holder.image.context as Activity).startActivity(
+                intent,
+                null
             )
 
-            startActivity(holder.image.context, intent, options.toBundle())
+            (holder.image.context as Activity).overridePendingTransition(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+            )
         }
         holder.chapNumber1.setOnClickListener {
             Constants.saveHistory(holder.itemView.context,currentItem,currentItem.chapFirst)
@@ -110,10 +113,8 @@ class ProductAdapter(
             intent.putExtra("chapter", chapter1)
             intent.putExtra("product", product)
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            val activity = holder.chapNumber1.context as Activity
-            val options =
-                ActivityOptions.makeSceneTransitionAnimation(activity, holder.image, "transition")
-            startActivity(holder.image.context, intent, options.toBundle())
+
+            (holder.chapNumber1.context as Activity).startActivity(intent, null)
         }
         holder.chapNumber2.setOnClickListener {
             Constants.saveHistory(holder.itemView.context,currentItem,currentItem.chapSecond)
@@ -122,10 +123,8 @@ class ProductAdapter(
             intent.putExtra("chapter", chapter2)
             intent.putExtra("product", product)
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            val activity = holder.chapNumber2.context as Activity
-            val options =
-                ActivityOptions.makeSceneTransitionAnimation(activity, holder.image, "transition")
-            startActivity(holder.image.context, intent, options.toBundle())
+
+            (holder.chapNumber2.context as Activity).startActivity(intent, null)
         }
     }
 

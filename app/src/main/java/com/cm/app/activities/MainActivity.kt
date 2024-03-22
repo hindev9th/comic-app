@@ -23,10 +23,8 @@ import com.google.firebase.ktx.Firebase
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var frameLayout: FrameLayout
     private lateinit var bottomNavigation: BottomNavigationView
     private var currentFragment: Fragment? = null
-    private val db = Firebase.firestore
     private lateinit var fragmentManager : FragmentManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,48 +32,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         fragmentManager = supportFragmentManager
-        frameLayout = findViewById(R.id.progressBar)
         bottomNavigation = findViewById(R.id.layoutBottomBar)
         bottomNavigation.visibility = View.GONE
         this.listeners()
-        getDomain()
-//        setDomain()
-    }
 
-//    fun setDomain(){
-//        val user = hashMapOf(
-//            "domain" to "https://www.nettruyenss.com/",
-//            "name" to "Net Truyện",
-//        )
-//
-//// Add a new document with a generated ID
-//        db.collection("constants")
-//            .add(user)
-//            .addOnSuccessListener { documentReference ->
-//                Log.d("Database","ok");
-//            }
-//            .addOnFailureListener { e ->
-//                Log.d("Database","loi te le roi");
-//            }
-//    }
-
-    fun getDomain(): Boolean {
-        db.collection("constants")
-            .document("vZp2YVkLM1yPG3SUjepu")
-            .get()
-            .addOnSuccessListener { result ->
-                if (Constants.BASE_COMIC_URL != result.get("domain").toString()) {
-                    Constants.BASE_COMIC_URL = result.get("domain").toString()
-                }
-                bottomNavigation.visibility = View.VISIBLE
-                initFragment(HomeFragment())
-            }
-            .addOnFailureListener { exception ->
-                Toast.makeText(this@MainActivity, "Can't connect server!", Toast.LENGTH_LONG).show()
-                bottomNavigation.visibility = View.VISIBLE
-                initFragment(HomeFragment())
-            }
-        return true
+        bottomNavigation.visibility = View.VISIBLE
+        initFragment(HomeFragment())
     }
 
     @SuppressLint("ResourceType")
@@ -154,9 +116,5 @@ class MainActivity : AppCompatActivity() {
         transaction.commit()
         // Update the currentFragment reference
         currentFragment = fragment
-    }
-
-    fun hideAndShowProgressBar(view: Int) {
-        this.frameLayout.visibility = view
     }
 }

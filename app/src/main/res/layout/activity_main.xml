@@ -12,18 +12,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/layoutBottomBar" />
-
-    <FrameLayout
-        android:id="@+id/progressBar"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/background">
-        <ProgressBar
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center"
-            android:indeterminateTint="@color/primary" />
-    </FrameLayout>
     <include android:id="@+id/layoutBottomBar" layout="@layout/bottom_bar"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

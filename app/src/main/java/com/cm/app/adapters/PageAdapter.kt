@@ -1,46 +1,36 @@
 package com.cm.app.adapters
 
-import android.app.Activity
 import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.target.Target
-import com.bumptech.glide.request.transition.Transition
-import com.cm.app.models.Page
 import com.cm.app.R
-import com.cm.app.activities.ReadActivity
 import com.cm.app.models.Chapter
 import com.cm.app.utils.Constants
 
-class PageAdapter(private val pageList: List<Chapter>, private val callbackInterface: CallbackInterface) :
-    RecyclerView.Adapter<PageAdapter.ViewHolder>() {
+class PageAdapter(
+    private val pageList: List<Chapter>,
+    private val callbackInterface: CallbackInterface
+) : RecyclerView.Adapter<PageAdapter.ViewHolder>() {
+
+    interface CallbackInterface {
+        fun setIsLoading(value: Boolean)
+    }
+
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val webView: WebView = itemView.findViewById(R.id.webView)
         val textStart: TextView = itemView.findViewById(R.id.textStart)
         val textEnd: TextView = itemView.findViewById(R.id.textEnd)
         val progressBar: FrameLayout = itemView.findViewById(R.id.progressBar)
-    }
-
-    interface CallbackInterface{
-        fun setIsLoading(value:Boolean)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -49,72 +39,71 @@ class PageAdapter(private val pageList: List<Chapter>, private val callbackInter
         return ViewHolder(view)
     }
 
-    override fun getItemCount(): Int {
-        return this.pageList.size
-    }
+    override fun getItemCount(): Int = pageList.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val currentImage = this.pageList[position]
-        if (currentImage.name != ""){
-            holder.textStart.text =  "Start chapter ${currentImage.name}"
-            holder.textEnd.text =  "End chapter ${currentImage.name}"
+        val currentImage = pageList[position]
+
+        if (currentImage.name.isNotEmpty()) {
+            holder.textStart.text = holder.itemView.context.getString(R.string.start_chapter, currentImage.name)
+            holder.textEnd.text = holder.itemView.context.getString(R.string.end_chapter, currentImage.name)
             holder.progressBar.visibility = View.VISIBLE
-            holder.webView.settings.javaScriptEnabled = true
-            holder.webView.webViewClient = object : WebViewClient() {
-                override fun onPageCommitVisible(view: WebView?, url: String?) {
-                    super.onPageCommitVisible(view, url)
-                    Log.d("AndroidRuntime",url.toString())
 
-                    val css =
-                        "#header,.notify_block,.top,.reading-control,#back-to-top,.mrt5.mrb5.text-center.col-sm-6,.top.bottom,.footer, .reading > .container{display: none !important;;}" //your css as String
-                    val js =
-                        "var style = document.createElement('style'); style.innerHTML = '$css'; document.head.appendChild(style);"
-                    holder.webView.evaluateJavascript(js, null)
-                }
-                override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                    super.onPageStarted(view, url, favicon)
+            holder.webView.clearCache(true)
+            holder.webView.clearHistory()
+            holder.webView.clearMatches()
+            holder.webView.clearView()
+            holder.webView.clearFormData()
 
-                    val css =
-                        "#header, .notify_block, .top, .reading-control,#back-to-top, .mrt5.mrb5.text-center.col-sm-6, .top.bottom, .footer, .reading > .container {display: none !important;} " //your css as String
-                    val js =
-                        "var style = document.createElement('style'); style.innerHTML = '$css'; document.head.appendChild(style);"
-                    holder.webView.evaluateJavascript(js, null)
-                    holder.progressBar.visibility = View.GONE
+            holder.webView.apply {
+                settings.javaScriptEnabled = true
+                webViewClient = object : WebViewClient() {
+                    override fun onPageCommitVisible(view: WebView?, url: String?) {
+                        super.onPageCommitVisible(view, url)
+                        val css =
+                            "#header, .notify_block, .top, .reading-control,#back-to-top, .mrt5.mrb5.text-center.col-sm-6, .top.bottom, .footer, .reading > .container {display: none !important;} " //your css as String
+                        val js =
+                            "var style = document.createElement('style'); style.innerHTML = '$css'; document.head.appendChild(style);"
+                        view?.evaluateJavascript(js, null)
+                    }
+                    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                        super.onPageStarted(view, url, favicon)
+                        val css =
+                            "#header, .notify_block, .top, .reading-control,#back-to-top, .mrt5.mrb5.text-center.col-sm-6, .top.bottom, .footer, .reading > .container {display: none !important;} " //your css as String
+                        val js =
+                            "var style = document.createElement('style'); style.innerHTML = '$css'; document.head.appendChild(style);"
+                        view?.evaluateJavascript(js, null)
+                        holder.progressBar.visibility = View.GONE
+                    }
+                    override fun onPageFinished(view: WebView?, url: String?) {
+                        super.onPageFinished(view, url)
+                        callbackInterface.setIsLoading(false)
+                    }
 
-                }
+                    @Deprecated("Deprecated in Java")
+                    override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+                        return if ((url == null) || !url.startsWith("https://") || !url.startsWith("http://")) {
+                            view?.stopLoading()
+                            false
+                        }else{
+                            true
+                        }
+                    }
 
-                override fun onPageFinished(view: WebView?, url: String?) {
-                    super.onPageFinished(view, url)
-                    callbackInterface.setIsLoading(false)
-                }
-
-                @Deprecated("Deprecated in Java")
-                override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                    if (url == null || !url.startsWith("https://") || !url.startsWith("http://")) {
-                        holder.webView.stopLoading()
-                        return false
-                    }else{
-                        return true
+                    override fun onReceivedError(
+                        view: WebView?,
+                        request: WebResourceRequest?,
+                        error: WebResourceError?
+                    ) {
+                        super.onReceivedError(view, request, error)
                     }
                 }
-                override fun onReceivedError(
-                    view: WebView?,
-                    request: WebResourceRequest?,
-                    error: WebResourceError?
-                ) {
-                    super.onReceivedError(view, request, error)
-//                    view?.loadUrl("about:blank")
-                    Toast.makeText(holder.webView.context, "Error occured, please check newtwork connectivity", Toast.LENGTH_SHORT).show()
-                }
+                loadUrl(Constants.BASE_COMIC_URL + currentImage.url)
             }
-
-
-            holder.webView.loadUrl(Constants.BASE_COMIC_URL+currentImage.url)
-        }else{
-            holder.textEnd.text = holder.textEnd.context.getString(R.string.no_new_chapter)
+        } else {
             holder.textStart.visibility = View.GONE
             holder.webView.visibility = View.GONE
+            holder.textEnd.setText(R.string.no_new_chapter)
         }
-
     }
 }

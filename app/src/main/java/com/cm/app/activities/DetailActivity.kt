@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -33,6 +34,10 @@ import com.cm.app.models.Product
 import com.cm.app.utils.DetailHelper
 import com.cm.app.utils.Constants
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.jsoup.nodes.Document
 
 class DetailActivity : AppCompatActivity() {
@@ -53,7 +58,7 @@ class DetailActivity : AppCompatActivity() {
     private lateinit var textStatus: TextView
     private lateinit var view: TextView
     private lateinit var textRead: TextView
-    private lateinit var textFavorite: TextView
+    private lateinit var imageBookmark: ImageView
     private lateinit var description: TextView
     private lateinit var frameLayoutBack: FrameLayout
     private lateinit var firstChapter: Chapter
@@ -64,23 +69,22 @@ class DetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail)
-        this.progressBarImage = findViewById(R.id.progressBarImage)
-        this.progressBar = findViewById(R.id.progressBar)
-        this.recyclerCategories = findViewById(R.id.recyclerCategories)
-        this.recyclerChapters = findViewById(R.id.recyclerChapters)
-        this.chapterModelList = arrayListOf()
-        this.categoryModelList = arrayListOf()
-        this.author = findViewById(R.id.textNameAuthor)
-        this.textStatus = findViewById(R.id.textStatus)
-        this.view = findViewById(R.id.textView)
-        this.description = findViewById(R.id.textContentDescription)
-        this.textRead = findViewById(R.id.textRead)
-        this.textFavorite = findViewById(R.id.textFavorite)
-        this.frameLayoutBack = findViewById(R.id.frameLayoutBack)
+        progressBarImage = findViewById(R.id.progressBarImage)
+        progressBar = findViewById(R.id.progressBar)
+        recyclerCategories = findViewById(R.id.recyclerCategories)
+        recyclerChapters = findViewById(R.id.recyclerChapters)
+        chapterModelList = arrayListOf()
+        categoryModelList = arrayListOf()
+        author = findViewById(R.id.textNameAuthor)
+        textStatus = findViewById(R.id.textStatus)
+        view = findViewById(R.id.textView)
+        description = findViewById(R.id.textContentDescription)
+        textRead = findViewById(R.id.textRead)
+        imageBookmark = findViewById(R.id.imageBookmark)
+        frameLayoutBack = findViewById(R.id.frameLayoutBack)
 
-        this.historyDao = HistoryDao(this)
-        this.favoriteDao = FavoriteDao(this)
-
+        historyDao = HistoryDao(this)
+        favoriteDao = FavoriteDao(this)
 
         val gson = Gson()
         this.product =
@@ -102,7 +106,7 @@ class DetailActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        this.loadData()
+        loadData()
     }
 
     @SuppressLint("NotifyDataSetChanged", "ResourceType")
@@ -122,6 +126,7 @@ class DetailActivity : AppCompatActivity() {
 
         textRead.setOnClickListener {
             val ct = gson.toJson(firstChapter)
+            Constants.saveHistory(this,product,firstChapter)
 
             val intent = Intent(this@DetailActivity, ReadActivity::class.java)
             intent.putExtra("chapter", ct)
@@ -130,32 +135,31 @@ class DetailActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        textFavorite.setOnClickListener{
+        imageBookmark.setOnClickListener {
             toggleLike()
         }
 
-        frameLayoutBack.setOnClickListener{
-            this.onBackPressed()
+        frameLayoutBack.setOnClickListener {
+            onBackPressed()
         }
     }
 
-    fun loadData() {
-        val image: ImageView = findViewById(R.id.imageProduct)
-        val name: TextView = findViewById(R.id.textName)
+    private fun loadData() {
+        val image = findViewById<ImageView>(R.id.imageProduct)
+        val name = findViewById<TextView>(R.id.textName)
 
-        name.text = this.product.name
+        name.text = product.name
 
-        Glide.with(this).load(Constants.getBaseImageUrl() + this.product.urlImage).listener(object :
-            RequestListener<Drawable> {
-            override fun onLoadFailed(
-                e: GlideException?,
-                model: Any?,
-                target: Target<Drawable>?,
-                isFirstResource: Boolean
-            ): Boolean {
-                progressBarImage.visibility = View.GONE
-                return false
-            }
+        Glide.with(this).load(Constants.getBaseImageUrl() + product.urlImage)
+            .listener(object : RequestListener<Drawable> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    return false
+                }
 
             override fun onResourceReady(
                 resource: Drawable?,
@@ -219,6 +223,7 @@ class DetailActivity : AppCompatActivity() {
         if (favoriteDao.getById(product.id) != null) {
             favoriteDao.deleteFavoriteById(product.id)
             loadFavorite(false)
+            Toast.makeText(this,"Xóa khỏi danh sách thành công!",Toast.LENGTH_SHORT).show()
         } else {
             val favorite = Favorite(
                 product.id,
@@ -232,27 +237,15 @@ class DetailActivity : AppCompatActivity() {
             )
             favoriteDao.insertFavorite(favorite)
             loadFavorite(true)
+            Toast.makeText(this,"Thêm vào danh sách thành công!",Toast.LENGTH_SHORT).show()
         }
-
     }
 
     fun loadFavorite(boolean: Boolean) {
         if (boolean) {
-            textFavorite.text = getString(R.string.unlike)
-            textFavorite.setTextColor(getColor(R.color.head_color))
-            textFavorite.background = getDrawable(R.drawable.border_chapter)
-            val drawable: Drawable? = getDrawable(R.drawable.ic_favorite)
-            val color = getColor(R.color.background)
-            drawable?.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
-            textFavorite.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
+            imageBookmark.setImageResource(R.drawable.ic_bookmark_bold)
         } else {
-            textFavorite.text = getString(R.string.them_yeu_thich)
-            textFavorite.setTextColor(getColor(R.color.white_text))
-            textFavorite.background = getDrawable(R.drawable.background_chapter)
-            val drawable: Drawable? = getDrawable(R.drawable.ic_favorite)
-            val color = getColor(R.color.white_text)
-            drawable?.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
-            textFavorite.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
+            imageBookmark.setImageResource(R.drawable.ic_bookmark_none)
         }
     }
 }

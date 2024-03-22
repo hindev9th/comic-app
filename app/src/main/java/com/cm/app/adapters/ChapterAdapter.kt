@@ -58,13 +58,7 @@ class ChapterAdapter(private var chapterList: ArrayList<Chapter>,private val pro
             intent.putExtra("product", pr)
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
 
-            val options = ActivityOptions.makeSceneTransitionAnimation(
-                holder.name.context as Activity,
-                holder.name,
-                "transition"
-            )
-
-            startActivity(holder.name.context,intent, options.toBundle())
+            (holder.name.context as Activity).startActivity(intent, null)
         }
     }
 

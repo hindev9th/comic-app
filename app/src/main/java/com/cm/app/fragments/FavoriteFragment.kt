@@ -8,15 +8,12 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.cm.app.R
-import com.cm.app.ViewModel.ChapterListViewModel
+import com.cm.app.view.ChapterListViewModel
 import com.cm.app.adapters.FavoriteAdapter
-import com.cm.app.adapters.HistoryAdapter
 import com.cm.app.data.database.dao.FavoriteDao
 import com.cm.app.data.database.dao.HistoryDao
 import com.cm.app.data.database.entities.Favorite
-import com.cm.app.data.database.entities.History
 import com.cm.app.repositories.ChapterRepository
-import com.cm.app.repositories.IChapterRepository
 
 class FavoriteFragment : Fragment() {
     private lateinit var listFavorite : ArrayList<Favorite>
@@ -56,8 +53,6 @@ class FavoriteFragment : Fragment() {
             textNoComic.visibility = View.VISIBLE
         }
         listens()
-//        historyDao.deleteAllHistories()
-//        Log.d("AndroidRuntime",historyDao.getHistory(1).toString())
     }
 
     fun listens(){
@@ -71,21 +66,5 @@ class FavoriteFragment : Fragment() {
                 }
             }
         })
-//        this.recyclerHistory.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-//            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-//                super.onScrolled(recyclerView, dx, dy)
-//                if (!recyclerView.canScrollVertically(1) && !isLoading) {
-//                    isLoading = true
-//                    index += 1;
-//                    listHistory += historyDao.getHistory(index)
-//                    historyAdapter.notifyDataSetChanged()
-//                    val handler = Handler()
-//                    handler.postDelayed({
-//                        isLoading = false;
-//                    }, 2000)
-//                }
-//            }
-//
-//        })
     }
 }

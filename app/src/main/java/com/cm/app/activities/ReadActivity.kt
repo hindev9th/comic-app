@@ -27,6 +27,10 @@ import com.cm.app.repositories.ChapterRepository
 import com.cm.app.utils.Constants
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.jsoup.nodes.Document
 import java.util.regex.Pattern
 
@@ -75,8 +79,6 @@ class ReadActivity : AppCompatActivity(), PageAdapter.CallbackInterface {
         this.currentChapter = gson.fromJson(intent.getStringExtra("chapter").toString(),Chapter::class.java)
         this.product = gson.fromJson(intent.getStringExtra("product").toString(),Product::class.java)
 
-
-
         this.webView = findViewById(R.id.webView)
         webView.clearCache(true)
         webView.clearHistory()
@@ -101,7 +103,7 @@ class ReadActivity : AppCompatActivity(), PageAdapter.CallbackInterface {
         listerEvent()
     }
 
-    fun listerEvent() {
+    private fun listerEvent() {
         next.setOnClickListener {
             this.currentChapter = this.chapterNext
             Constants.saveHistory(this,this.product,this.currentChapter)

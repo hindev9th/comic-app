@@ -62,6 +62,19 @@
                     </androidx.cardview.widget.CardView>
 
                     <TextView
+                        android:id="@+id/textName"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="10dp"
+                        android:text="@string/noi_dung"
+                        android:maxLines="3"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/head_color"
+                        app:layout_constraintStart_toEndOf="@id/cardViewImage"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+                    <TextView
                         android:id="@+id/textTitleNameAuthor"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -69,7 +82,7 @@
                         android:text="@string/tac_gia"
                         android:textSize="12sp"
                         app:layout_constraintStart_toEndOf="@id/cardViewImage"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toBottomOf="@+id/textName" />
 
                     <TextView
                         android:id="@+id/textNameAuthor"
@@ -81,7 +94,7 @@
                         android:textSize="12sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@id/textTitleNameAuthor"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toBottomOf="@+id/textName" />
 
                     <TextView
                         android:id="@+id/textTitleStatus"
@@ -157,38 +170,6 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
 
-                        <TextView
-                            android:id="@+id/textFavorite"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="0.475"
-                            android:background="@drawable/border_chapter"
-                            android:padding="5dp"
-                            android:text="@string/them_yeu_thich"
-                            android:textAlignment="center"
-                            android:textColor="@color/black"
-                            android:textSize="18sp"
-                            app:drawableStartCompat="@drawable/ic_favorite"
-                            app:drawableTint="@color/background" />
-
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="0dp"
-                            android:layout_weight="0.05" />
-
-                        <TextView
-                            android:id="@+id/textRead"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="0.475"
-                            android:background="@drawable/background_read"
-                            android:padding="5dp"
-                            android:text="@string/doc_truyen"
-                            android:textAlignment="center"
-                            android:textColor="@color/white_text"
-                            android:textSize="18sp"
-                            app:drawableStartCompat="@drawable/ic_play"
-                            app:drawableTint="@color/white_text" />
                     </LinearLayout>
 
 
@@ -208,7 +189,6 @@
                         android:id="@+id/textContentDescription"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:maxLines="5"
                         android:paddingStart="10dp"
                         android:paddingEnd="10dp"
                         android:textColor="@color/secondary_text"
@@ -249,25 +229,28 @@
                 app:contentInsetStart="0dp"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
+                android:paddingEnd="5dp"
+                android:paddingStart="10dp"
                 app:layout_collapseMode="pin">
 
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
                     <!-- Your custom TextView -->
-                    <TextView
-                        android:id="@+id/textName"
-                        android:layout_width="match_parent"
+                    <FrameLayout
+                        android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:maxLines="2"
-                        android:paddingEnd="10dp"
-                        android:paddingStart="35dp"
-                        android:text="Tồn Tại Như Nàng Công Chúa Dã Chủng"
-                        android:textColor="@color/head_color"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:layout_marginEnd="5dp"
+                        android:layout_gravity="end">
+                        <ImageView
+                            android:id="@+id/imageBookmark"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_bookmark_none"
+                            android:tint="@color/primary"/>
 
+                    </FrameLayout>
                     <FrameLayout
                         android:id="@+id/frameLayoutBack"
                         android:layout_width="50dp"
@@ -279,6 +262,7 @@
                             android:src="@drawable/ic_back"
                             app:tint="@color/secondary_text" />
                     </FrameLayout>
+
                 </FrameLayout>
 
             </androidx.appcompat.widget.Toolbar>
@@ -305,21 +289,50 @@
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:itemCount="20"
                 tools:listitem="@layout/item_container_chapter_number" />
-
-            <FrameLayout
-                android:id="@+id/progressBar"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/background"
-                android:visibility="gone">
-
-                <ProgressBar
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center"
-                    android:indeterminateTint="@color/primary" />
-            </FrameLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        app:contentInsetEnd="0dp"
+        app:contentInsetStart="0dp"
+        android:layout_gravity="bottom"
+        android:background="@color/white"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp">
+
+            <TextView
+                android:id="@+id/textRead"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:contentInsetEnd="0dp"
+                app:contentInsetStart="0dp"
+                android:layout_weight="1"
+                android:background="@drawable/background_read"
+                android:padding="5dp"
+                android:text="@string/doc_truyen"
+                android:textAlignment="center"
+                android:textColor="@color/white_text"
+                android:textSize="18sp"
+                app:drawableTint="@color/white_text" />
+        </LinearLayout>
+    </com.google.android.material.bottomappbar.BottomAppBar>
+
+    <FrameLayout
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/background">
+        <ProgressBar
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:indeterminateTint="@color/primary"/>
+    </FrameLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
